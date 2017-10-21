@@ -63,8 +63,14 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Data\UISInstance.cs" />
+    <Compile Include="Data\Lexical\UISLexelElements.cs" />
+    <Compile Include="Data\Lexical\UISLexicalAnalyzer.cs" />
+    <Compile Include="Data\Lexical\UISLexicalReader.cs" />
     <Compile Include="Data\UISObjects.cs" />
-    <Compile Include="Data\UISLoader.cs" />
+    <Compile Include="Data\Parser\UISTokenReader.cs" />
+    <Compile Include="Data\Parser\UISParseException.cs" />
+    <Compile Include="Data\Parser\UISParserLexel.cs" />
+    <Compile Include="Data\Parser\UISParser.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -96,5 +102,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
