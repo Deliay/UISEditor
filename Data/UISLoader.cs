@@ -11,44 +11,45 @@ namespace UISEditor.Data
      * uis -> cmds elements
      * 
      * elements -> elements element
-     * element -> customEs | funcEs
+     * element -> customEs | funcEs | aniEs
      * 
      * cmd -> @id string
      * cmds -> cmds cmd | empty
      * 
-     * 
-     * index -> number
-     * indexs -> indexs, index | empty
-     * 
      * customEs -> customEs customE | empty
      * funcEs -> funcEs funcE | empty
+     * aniEs -> aniEs aniE | empty
      * 
-     * customE -> _id \n prop | _id-lists \n prop
-     * funcE -> id \n prop | id-lists \n prop
-     * aniE -> :id \n aniCollects
-     * lists -> [indexs]
+     * *index -> number
+     * *indexs -> indexs, index | empty
+ 
+     * *customE -> _id \n props | _id-lists \n props
+     * *funcE -> id \n props | id-lists \n props
+     * *aniE -> :id \n aniCollects
+     * *lists -> [indexs]
      * 
-     * prop -> tab id = value
-     * props -> props prop | empty
+     * *prop -> tab id = value
+     * *props -> props prop | empty
      * 
      * 
-     * aniProp -> aniName=value
-     * aniProps -> aniProps,aniProp
-     * aniCollects -> \n name=aniName \t \n aniCollects \n tab aniProps 
+     * *aniProp -> aniName=value
+     * *aniProps -> aniProps,aniProp
+     * *aniCollects -> \n name=aniName \t \n aniCollects \n tab aniProps 
      * 
-     * animationTime -> number | number, number | number, +number
-     * value -> term | string | vector | hexcolor | filename | framefile | motion
+     * *animationRepeat -> number | r number | number, number | number, r number
+     * *animationTime -> number | number, number | number, +number
+     * *value -> term | string | vector | hexcolor | filename | framefile | motion
      * 
-     * vector -> term, term | (term, term)
-     * term -> expr - expr | expr + expr | expr
-     * expr -> number | px | percent
+     * *vector -> term, term | (term, term)
+     * *term -> expr - expr | expr + expr | expr
+     * *expr -> number | px | percent
      * 
-     * motion -> !aniProps
-     * percent -> number%
-     * px -> number"px"
+     * *motion -> !aniProps
+     * *percent -> number%
+     * *px -> number"px"
      * 
-     * filename -> string.string
-     * framefile -> string / number - number
+     * *filename -> string.string
+     * *framefile -> string / number - number
      * */
     public enum Tag
     {
@@ -321,6 +322,11 @@ namespace UISEditor.Data
     /// </summary>
     public class UISLoader
     {
+        public class LecicalExpection : Exception
+        {
+            public LecicalExpection(string message) : base(message) { }
+        }
+
         public Reader Reader { get; private set; }
         public LinkedList<Token> TokenList { get; private set; } = new LinkedList<Token>();
 
@@ -336,10 +342,25 @@ namespace UISEditor.Data
             for(; ;peek = Reader.ReadChar())
             {
                 if (!Reader.EOF()) return new Token(Tag.FLAG_END, Reader.CurrentLineNumber);
-                if (peek == '\r' || peek == ' ') continue;
+                if (peek == '\r') continue;
+                if (peek == ' ')
+                {
+                    int count = 1;
+                    do
+                    {
+                        peek = Reader.ReadChar();
+                        count++;
+                    } while (peek != ' ');
+                    if (count == 4) return new Tab(Reader.CurrentLineNumber);
+                }
                 if (peek == '\t') return new Tab(Reader.CurrentLineNumber);
                 else if (peek == '\n')
                 {
+                    do
+                    {
+                        peek = Reader.ReadChar();
+                    } while (peek != '\n');
+
                     return new EndOfLine(Reader.CurrentLineNumber);
                 }
                 else break;
@@ -623,6 +644,112 @@ namespace UISEditor.Data
             instance = new UISInstance();
         }
 
+
+
+        private static UISPredefineElement predefineElement()
+        {
+            Func<string, UISPredefineElement> generator = v => {
+                if (!Enum.TryParse(v, out PredefineElementType type)) throw new ParseException(look as Word, typeof(PredefineElementType).ToString());
+                return new UISPredefineElement(type);
+            };
+            return ReadElementT(Tag.IDENTITY, generator, props, false);
+        }
+
+        private static UISCustomElement customElement()
+        {
+            return ReadElementT(Tag.UserDef, v => new UISCustomElement(v), props);
+        }
+        
+
+        private static UISAnimationElement animationElement()
+        {
+            return ReadElementT(Tag.Animation, v => new UISAnimationElement(v), aniCollect);
+
+            //if (Expect(Tag.Animation))
+            //{
+            //    Word name = look as Word;
+            //    UISAnimationElement aniE = new UISAnimationElement(name.Lexeme);
+            //    if(Expect(Tag.Index))
+            //    {
+            //        aniE.IsMultiSelect = true;
+            //        aniE.Indexs = indexs();
+            //    }
+            //    Expect(Tag.LINE_END);
+            //    aniE.AddAllProperty(aniCollect());
+            //    return aniE;
+            //}
+            //throw new ParseException(look as Word, "Animation element");
+        }
+
+        private static T ReadElementT<T, TR>
+            (Tag expectTag, 
+            Func<string, T> generator, 
+            Func<LinkedList<TR>> readFunc, bool passTag = true) 
+            where T : UISElement<TR> 
+            where TR : UISObject
+        {
+            Func<Tag[], bool> passFunc;
+            if (passTag) passFunc = Expect;
+            else passFunc = Test;
+
+            if(passFunc(new[] { expectTag }))
+            {
+                Word name = look as Word;
+                T result = generator(name.Lexeme);
+                if(Expect(Tag.Index))
+                {
+                    result.IsMultiSelect = true;
+                    result.Indexs = indexs();
+                }
+                Expect(Tag.LINE_END);
+                result.AddAllProperty(readFunc());
+                return result;
+            }
+            throw new ParseException(look as Word, typeof(T).ToString());
+        }
+
+        private static LinkedList<UISNumber> indexs()
+        {
+            ExpectGrammar(Tag.LeftBar);
+            LinkedList<UISNumber> lists = new LinkedList<UISNumber>();
+            do
+            {
+                lists.AddLast(expr() as UISNumber);
+            } while (Expect(Tag.Split));
+            ExpectGrammar(Tag.RightBar);
+            return lists;
+        }
+
+        private static LinkedList<UISProperty> props()
+        {
+            LinkedList<UISProperty> list = new LinkedList<UISProperty>();
+
+            while (Expect(Tag.TAB))
+            {
+                list.AddLast(prop());
+                ExpectGrammar(Tag.LINE_END);
+            }
+
+            return list;
+        }
+
+        private static UISProperty prop()
+        {
+            TestGrammar(Tag.IDENTITY);
+            Word prop = look as Word;
+
+            if (!Enum.TryParse(prop.Lexeme, out Property result))
+                throw new ParseException(prop, typeof(Property).ToString());
+
+            ExpectGrammar(Tag.IDENTITY);
+            ExpectGrammar(Tag.Equal);
+
+            UISValue val = value();
+            ExpectGrammar(Tag.LINE_END);
+
+            return new UISProperty(result, val);
+        }
+
         private static void InitConstraint()
         {
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.TEX, filename);
@@ -671,6 +798,17 @@ namespace UISEditor.Data
         private static UISNull nul()
         {
             return new UISNull();
+        }
+
+        private static LinkedList<UISAnimation> aniCollect()
+        {
+            LinkedList<UISAnimation> list = new LinkedList<UISAnimation>();
+            while(Expect(Tag.TAB))
+            {
+                list.AddLast(animation());
+                ExpectGrammar(Tag.LINE_END);
+            }
+            return list;
         }
 
         private static UISAnimation animation()
@@ -730,14 +868,19 @@ namespace UISEditor.Data
                         ani.AddAnimationProperty(new UISAnimationProperty(AnimationType.ATIME, animationTime()));
                         break;
                     case "repeat":
-
+                        ExpectGrammar(Tag.Equal);
+                        ani.AddAnimationProperty(new UISAnimationProperty(AnimationType.REPEAT, animationRepeat()));
+                        break;
                     case "trans":
-
+                        ExpectGrammar(Tag.Equal);
+                        ani.AddAnimationProperty(new UISAnimationProperty(AnimationType.TRANS, new UISAnimationCurve(readCurve())));
+                        break;
                     default:
                         throw new ParseException(kw, ObjectTag.ANI_PROP_DEF.ToString());
                 }
-
             } while (!(Reader.ReadNext() is EndOfLine));
+
+            return ani;
         }
 
         private static UISValue value()
@@ -756,8 +899,66 @@ namespace UISEditor.Data
             }
         }
 
+        private static UISCurve readCurve()
+        {
+            List<UISNumber> lists = new List<UISNumber>();
+            ExpectGrammar(Tag.LeftPar);
+            lists.Add(expr() as UISNumber);
+            while (Test(Tag.Split))
+            {
+                ExpectGrammar(Tag.Split);
+                lists.Add(expr() as UISNumber);
+            }
+            ExpectGrammar(Tag.RightPar);
+            return new UISCurve(lists);
+        }
+
+        private static UISAnimationRepeat animationRepeat()
+        {
+            bool isLoop = false;
+            UISNumber repeatCount = null;
+            UISNumber repeatTime = null;
+            if(Test(Tag.IDENTITY))
+            {
+                string repeatCountLiteral = (look as Word).Lexeme;
+                if(repeatCountLiteral.StartsWith("r"))
+                {
+                    isLoop = true;
+                    repeatCountLiteral = repeatCountLiteral.Substring(1);
+                    if (int.TryParse(repeatCountLiteral, out int result))
+                    {
+                        repeatCount = new UISNumber(result);
+                        ExpectGrammar(Tag.IDENTITY);
+                    }
+                }
+                else throw new ParseException(look as Word, "r+Number");
+            }
+            else if(Test(Tag.NUMBER))
+            {
+                repeatCount = expr() as UISNumber;
+                ExpectGrammar(Tag.NUMBER);
+            }
+
+            if(Test(Tag.Split))
+            {
+                ExpectGrammar(Tag.Split);
+                repeatTime = expr() as UISNumber;
+            }
+            else repeatTime = new UISNumber(0); 
+
+            return new UISAnimationRepeat(repeatCount, repeatTime, isLoop);
+        }
+
         private static UISAnimationTime animationTime()
         {
+            UISNumber start = expr() as UISNumber;
+            if (Test(Tag.Split)) ExpectGrammar(Tag.Split);
+            else return new UISAnimationTime(start, new UISNumber(0), false);
+
+            if (Test(Tag.Add)) ExpectGrammar(Tag.Add);
+            else return new UISAnimationTime(start, expr() as UISNumber);
+
+            return new UISAnimationTime(start, expr() as UISNumber, true);
 
         }
 

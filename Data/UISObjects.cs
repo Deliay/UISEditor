@@ -118,6 +118,7 @@ namespace UISEditor.Data
         HEX_COLOR,
         TEXT, NULL, TIME,
         ANIMATE_PROP, CURVE,
+        ANIMATE_REPEAT, ANIMATE_TRANS,
     }
 
     public enum AnimationName
@@ -181,15 +182,15 @@ namespace UISEditor.Data
 
     public class UISCurve : UISLiteralValue
     {
-        public string Text { get; private set; }
-        public UISCurve(params UISNumber[] points) : base(ValueType.CURVE)
+        public List<UISNumber> Points { get; private set; }
+        public UISCurve(IEnumerable<UISNumber> points) : base(ValueType.CURVE)
         {
-            Text = text;
+            Points = new List<UISNumber>(points);
         }
 
         public override string CombineValue()
         {
-            return Text;
+            return $"({string.Join(",", Points.Select(p => p.CombineValue()))})";
         }
     }
 
@@ -253,25 +254,36 @@ namespace UISEditor.Data
 
     public class UISAnimationRepeat : UISLiteralValue
     {
-        public UISAnimationRepeat(ValueType type) : base(type)
+        public UISNumber RepeatCount { get; set; }
+        public UISNumber RepeatTime { get; set; }
+        public bool Repeat { get; set; }
+        public UISAnimationRepeat(UISNumber repeatCount, UISNumber repeatTime, bool isLoop) : base(ValueType.ANIMATE_REPEAT)
         {
+            this.RepeatCount = repeatCount;
+            this.RepeatTime = repeatTime;
+            this.Repeat = isLoop;
         }
 
         public override string CombineValue()
         {
-            throw new NotImplementedException();
+            string loop = Repeat ? "r" : string.Empty;
+            string count = RepeatTime.Number > 0 ? $",{RepeatTime}" : string.Empty;
+
+            return $"{loop}{RepeatCount}{count}";
         }
     }
 
     public class UISAnimationCurve : UISLiteralValue
     {
-        public UISAnimationCurve(ValueType type) : base(type)
+        public UISCurve AnimationCurve { get; set; }
+        public UISAnimationCurve(UISCurve curve) : base(ValueType.ANIMATE_TRANS)
         {
+            AnimationCurve = curve;
         }
 
         public override string CombineValue()
         {
-            throw new NotImplementedException();
+            return AnimationCurve.CombineValue();
         }
     }
 
@@ -288,12 +300,7 @@ namespace UISEditor.Data
         public byte Blue { get; set; }
         public byte Green { get; set; }
         
-        public UISHexColor(string value) : base(ValueType.HEX_COLOR)
-        {
-            //#66ccff
-            //$R G B
-            FormString(value);
-        }
+        public UISHexColor(string value) : base(ValueType.HEX_COLOR) => FormString(value);
 
         public void FormString(string value)
         {
@@ -302,10 +309,8 @@ namespace UISEditor.Data
             Blue = byte.Parse(value.Substring(5, 2), System.Globalization.NumberStyles.AllowHexSpecifier);
         }
 
-        public override string CombineValue()
-        {
-            return $"#{Red.ToString("{0:X}")}{Green.ToString("{0:X}")}{Blue.ToString("{0:X}")}";
-        }
+        public override string CombineValue() =>  $"#{Red.ToString("{0:X}")}{Green.ToString("{0:X}")}{Blue.ToString("{0:X}")}";
+        
     }
     
     public class UISVector : UISValue
@@ -477,7 +482,7 @@ namespace UISEditor.Data
     /// </summary>
     public class UISAnimationElement : UISElement<UISAnimation>
     {
-        public UISAnimationElement(string ElementName) : base(ObjectTag.ANI_DEF, ElementName)
+        public UISAnimationElement(string ElementName, bool isMultiSelect = false) : base(ObjectTag.ANI_DEF, ElementName, isMultiSelect)
         {
         }
 
@@ -508,7 +513,7 @@ namespace UISEditor.Data
         /// <summary>
         /// Selected indexs
         /// </summary>
-        public LinkedList<int> Indexs { get; set; }
+        public LinkedList<UISNumber> Indexs { get; set; }
 
         /// <summary>
         /// Base element ctor
@@ -519,7 +524,7 @@ namespace UISEditor.Data
         public UISElement(ObjectTag tokenTag, string ElementName, bool isMultiSelect = false) : base(tokenTag)
         {
             IsMultiSelect = isMultiSelect;
-            if (isMultiSelect) Indexs = new LinkedList<int>();
+            if (isMultiSelect) Indexs = new LinkedList<UISNumber>();
 
         }
 
@@ -530,6 +535,14 @@ namespace UISEditor.Data
         public void AddProperty(T prop)
         {
             Properties.AddLast(prop);
+        }
+
+        public void AddAllProperty(IEnumerable<T> list)
+        {
+            foreach (var item in list)
+            {
+                Properties.AddLast(item);
+            }
         }
 
         /// <summary>
