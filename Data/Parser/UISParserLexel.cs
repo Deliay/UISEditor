@@ -12,6 +12,38 @@ namespace UISEditor.Data
     public static partial class UISParser
     {
 
+        private static UISFunctionalElement cmd()
+        {
+            if(Expect(Tag.AtProp))
+            {
+                Word word = look as Word;
+                ExpectGrammar(Tag.IDENTITY);
+                if (!Enum.TryParse(word.Lexeme, out FunctionElementType result)) throw new ParseException(word, typeof(FunctionElementType).ToString);
+                word = look as Word;
+                ExpectGrammar(Tag.I)
+            }
+        }
+
+        private static List<UISObject> elements()
+        {
+            List<UISObject> currentList = new List<UISObject>();
+            while(true)
+            {
+                var item = element();
+                if (item != null) currentList.Add(item);
+                else break;
+            }
+            return currentList;
+        }
+
+        private static UISObject element()
+        {
+            if (Test(Tag.IDENTITY)) return predefineElement();
+            else if (Test(Tag.UserDef)) return customElement();
+            else if (Test(Tag.Animation)) return animationElement();
+            else return null;
+        }
+
         private static UISPredefineElement predefineElement()
         {
             Func<string, UISPredefineElement> generator = v => {

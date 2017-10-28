@@ -10,11 +10,11 @@ namespace UISEditor.Data
     /*
      * uis -> cmds elements
      * 
-     * elements -> elements element
-     * element -> customEs | funcEs | aniEs
-     * 
      * cmd -> @id string
      * cmds -> cmds cmd | empty
+     * 
+     * elements -> elements element
+     * element -> customEs | funcEs | aniEs
      * 
      * customEs -> customEs customE | empty
      * funcEs -> funcEs funcE | empty

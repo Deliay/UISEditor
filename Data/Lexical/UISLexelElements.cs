@@ -60,8 +60,11 @@ namespace UISEditor.Data
 
     public class AtProperty : Operator
     {
-        public AtProperty(int line) : base(Tag.AtProp, "@", line)
+        public string id { get; private set; }
+        public string value { get; private set; }
+        public AtProperty( int line) : base(Tag.AtProp, "@", line)
         {
+
         }
     }
 

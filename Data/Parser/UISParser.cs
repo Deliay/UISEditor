@@ -20,6 +20,7 @@ namespace UISEditor.Data
         }
 
 
+
         private static void InitConstraint()
         {
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.TEX, filename);
