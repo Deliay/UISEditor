@@ -28,11 +28,11 @@ namespace UISEditor.Data
 
         public Token Scan()
         {
-            char peek = ' ';
-            for (; ; peek = Reader.ReadChar())
+            char peek;
+            for (; ; )
             {
+                peek = Reader.ReadChar();
                 if (!Reader.EOF()) return new Token(Tag.FLAG_END, Reader.CurrentLineNumber);
-                if (peek == '\r') continue;
                 if (peek == ' ')
                 {
                     int count = 1;
@@ -40,17 +40,22 @@ namespace UISEditor.Data
                     {
                         peek = Reader.ReadChar();
                         count++;
-                    } while (peek != ' ');
-                    if (count == 4) return new Tab(Reader.CurrentLineNumber);
+                    } while (peek == ' ' && Reader.EOF());
+                    if (count >= 4)
+                    {
+                        Reader.Back();
+                        return new Tab(Reader.CurrentLineNumber);
+                    }
                 }
+                if (peek == '\r') continue;
                 if (peek == '\t') return new Tab(Reader.CurrentLineNumber);
                 else if (peek == '\n')
                 {
                     do
                     {
                         peek = Reader.ReadChar();
-                    } while (peek != '\n');
-
+                    } while (peek == '\n' && Reader.EOF());
+                    Reader.Back();
                     return new EndOfLine(Reader.CurrentLineNumber);
                 }
                 else break;
@@ -64,6 +69,7 @@ namespace UISEditor.Data
                     val += peek;
                     peek = Reader.ReadChar();
                 } while (char.IsLetterOrDigit(peek));
+                Reader.Back();
                 return new Word(Tag.IDENTITY, val, Reader.CurrentLineNumber);
             }
 
@@ -74,7 +80,8 @@ namespace UISEditor.Data
                 {
                     val += peek;
                     peek = Reader.ReadChar();
-                } while (peek == '\n');
+                } while (peek == '\n' && Reader.EOF());
+                Reader.Back();
                 return new HexString(val, Reader.CurrentLineNumber);
             }
 
@@ -85,20 +92,23 @@ namespace UISEditor.Data
                 {
                     v = 10 * v + (int)char.GetNumericValue(peek);
                     peek = Reader.ReadChar();
-                } while (char.IsDigit(peek));
+                } while (char.IsDigit(peek) && Reader.EOF());
                 if (peek != '.')
                 {
                     Reader.Back();
                     return new Number(v, Reader.CurrentLineNumber);
                 }
+
                 double x = v, d = 10;
-                while (true)
+                while (true && Reader.EOF())
                 {
                     peek = Reader.ReadChar();
                     if (!char.IsDigit(peek)) break;
                     x += char.GetNumericValue(peek) / d;
                     d *= 10;
                 }
+
+                Reader.Back();
                 return new RealNumber(x, Reader.CurrentLineNumber);
             }
 
@@ -120,7 +130,11 @@ namespace UISEditor.Data
 
             if (peek == '@')
             {
-                return new AtProperty(Reader.CurrentLineNumber);
+                int line = Reader.CurrentLineNumber;
+                string lex = Reader.ReadLine();
+                string id = lex.Substring(0, lex.IndexOf(' '));
+                string value = lex.Substring(id.Length);
+                return new AtProperty(line, id, value);
             }
 
             if (peek == '(')
@@ -179,7 +193,7 @@ namespace UISEditor.Data
             {
                 this.TokenList.AddLast(tok);
                 tok = Scan();
-            } while (tok.TokenTag != Tag.FLAG_END);
+            } while (Reader.EOF());
         }
 
     }

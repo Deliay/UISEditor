@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,10 +14,16 @@ namespace UISEditor.Data
             AddPropertyConstraint(Property.TEX, typeof(UISFileName));
 
             AddPropertyConstraint(Property.FRAME, typeof(UISFrameFile));
+            for (int i = 19; i < 38; i++)
+            {
+                AddPropertyConstraint((Property)i, typeof(UISFrameFile));
+            }
             AddPropertyConstraint(Property.COLOR, typeof(UISHexColor));
 
             AddPropertyConstraint(Property.SIZE, typeof(UISVector));
             AddPropertyConstraint(Property.POS, typeof(UISVector));
+            AddPropertyConstraint(Property.SIZE2, typeof(UISVector));
+            AddPropertyConstraint(Property.POS2, typeof(UISVector));
             AddPropertyConstraint(Property.PART, typeof(UISVector));
 
             AddPropertyConstraint(Property.ANCHOR, typeof(UISNumber));
@@ -53,7 +60,7 @@ namespace UISEditor.Data
             AddPropertyConstraint(AnimationName.HIDE, typeof(UISNull));
         }
 
-        private static Dictionary<object, LinkedList<object>> Constraint;
+        private static Dictionary<object, LinkedList<object>> Constraint = new Dictionary<object, LinkedList<object>>();
 
         public static bool AddPropertyConstraint<T>(object prop, T value)
         {
@@ -82,7 +89,7 @@ namespace UISEditor.Data
     public enum ObjectTag
     {
         FUNC_DEF, PER_DEF, USER_DEF, ANI_DEF, ANI_PROP_DEF,
-        PROP, VALUE, IDENTITY, TEXT,
+        PROP, VALUE, IDENTITY, TEXT, _SYS_LIST_
     }
 
     public enum PredefineElementType
@@ -90,20 +97,25 @@ namespace UISEditor.Data
         NOTE, KEY, HIT, PRESS, JUDGE,
         SCORE_COMBO, SCORE_SCORE, SCORE_ACC, SCORE_HP,
         BGA, TOUCH, PROGRESS, HP, MUSICBAR,
-        HIT_FAST, HIT_SLOW,
+        HIT_FAST, HIT_SLOW, PAUSE,
     }
 
     public enum FunctionElementType
     {
         APPLY, VERSION, APPLY_SOUNDEND,
-        ANGLE, INCLUDE,
+        ANGLE, INCLUDE, TEXPACK,
     }
     
     public enum Property
     {
         TEX, SIZE, POS, ANCHOR, FRAME, INTERVAL,
         COLOR, ROTATE, FLIP, OPACITY, ZINDEX, FSIZE,
-        PART, BLEND, TEXT, TYPE,
+        PART, BLEND, TEXT, TYPE, MOTION,
+
+        POS2, SIZE2,
+
+        FRAME2, FRAME3, FRAME4, FRAME5, FRAME6, FRAME7, FRAME8, FRAME9,
+        FRAME10, FRAME11, FRAME12, FRAME13, FRAME14, FRAME15, FRAME16, FRAME17, FRAME18, FRAME19, FRAME20
     }
 
     public enum ValueType
@@ -456,6 +468,24 @@ namespace UISEditor.Data
     }
 
     /// <summary>
+    /// UIS JudgePredefineElement
+    /// </summary>
+    public class UISPredefine_JUDGE_N_Element : UISPredefineElement
+    {
+        int Value { get; set; }
+        public UISPredefine_JUDGE_N_Element(Number value) : base(PredefineElementType.JUDGE)
+        {
+            this.Value = value.Value;
+        }
+
+        public override string ElementCombineValue()
+        {
+            return base.ElementCombineValue();
+        }
+
+    }
+
+    /// <summary>
     /// UIS PreDefined Element 
     /// <para>Manager per-defined element</para>
     /// </summary>
@@ -505,7 +535,7 @@ namespace UISEditor.Data
         /// <summary>
         /// Generic element properties
         /// </summary>
-        public LinkedList<T> Properties { get; private set; } = new LinkedList<T>();
+        public UISList<T> Properties { get; private set; } = new UISList<T>();
         /// <summary>
         /// Tag this element is a multi-select element
         /// </summary>
@@ -513,7 +543,7 @@ namespace UISEditor.Data
         /// <summary>
         /// Selected indexs
         /// </summary>
-        public LinkedList<UISNumber> Indexs { get; set; }
+        public UISList<UISNumber> Indexs { get; set; }
 
         /// <summary>
         /// Base element ctor
@@ -524,7 +554,7 @@ namespace UISEditor.Data
         public UISElement(ObjectTag tokenTag, string ElementName, bool isMultiSelect = false) : base(tokenTag)
         {
             IsMultiSelect = isMultiSelect;
-            if (isMultiSelect) Indexs = new LinkedList<UISNumber>();
+            if (isMultiSelect) Indexs = new UISList<UISNumber>();
 
         }
 
@@ -534,14 +564,14 @@ namespace UISEditor.Data
         /// <param name="prop"></param>
         public void AddProperty(T prop)
         {
-            Properties.AddLast(prop);
+            Properties.Add(prop);
         }
 
         public void AddAllProperty(IEnumerable<T> list)
         {
             foreach (var item in list)
             {
-                Properties.AddLast(item);
+                Properties.Add(item);
             }
         }
 
@@ -610,6 +640,39 @@ namespace UISEditor.Data
         {
             return string.Empty;
         }
+    }
+
+    public class UISList<T> : UISObject, IReadOnlyCollection<T> where T : UISObject
+    {
+        LinkedList<T> list = new LinkedList<T>();
+
+        public UISList() : base(ObjectTag._SYS_LIST_)
+        {
+
+        }
+
+        public void AddAll(IEnumerable<T> lists)
+        {
+            foreach (var item in lists)
+            {
+                this.list.AddLast(item);
+            }
+        }
+
+        public void Add(T item)
+        {
+            this.list.AddLast(item);
+        }
+
+        public LinkedList<T> List { get => list; }
+
+        public int Count => List.Count;
+
+        public override string CombineValue() => string.Join("", this.Select(p => p.CombineValue()));
+
+        public IEnumerator<T> GetEnumerator() => List.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => List.GetEnumerator();
     }
 
     /// <summary>

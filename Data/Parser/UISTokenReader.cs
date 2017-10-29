@@ -10,15 +10,15 @@ namespace UISEditor.Data
     /*
      * uis -> cmds elements
      * 
-     * cmd -> @id string
-     * cmds -> cmds cmd | empty
+     * *cmd -> @id string
+     * *cmds -> cmds cmd | empty
      * 
-     * elements -> elements element
-     * element -> customEs | funcEs | aniEs
+     * *elements -> elements element
+     * *element -> customEs | funcEs | aniEs
      * 
-     * customEs -> customEs customE | empty
-     * funcEs -> funcEs funcE | empty
-     * aniEs -> aniEs aniE | empty
+     * *customEs -> customEs customE | empty
+     * *funcEs -> funcEs funcE | empty
+     * *aniEs -> aniEs aniE | empty
      * 
      * *index -> number
      * *indexs -> indexs, index | empty

@@ -28,7 +28,7 @@ namespace UISEditor.Data
                 currentLinePos = -1;
             }
             currentLinePos++;
-            return codes[currentPos++];
+            return result;
         }
 
         public char PeekChar()
@@ -50,11 +50,12 @@ namespace UISEditor.Data
         {
             string cache = string.Empty;
             char cur = ReadChar();
-            while (cur != (char)Tag.LINE_END)
+            while (cur != (char)Tag.LINE_END && cur != '\r')
             {
                 cache += (cur);
                 cur = ReadChar();
             }
+            Back();
             return cache;
         }
 

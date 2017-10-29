@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UISEditor.Data
 {
-    class UISInstance
+    public class UISInstance
     {
         LinkedList<UISObject> ObjectTree = new LinkedList<UISObject>();
 

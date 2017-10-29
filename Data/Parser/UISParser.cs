@@ -26,10 +26,16 @@ namespace UISEditor.Data
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.TEX, filename);
 
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.FRAME, framefile);
+            for (int i = 19; i < 38; i++)
+            {
+                PropertyConstraint.AddPropertyConstraint<Func<UISValue>>((Property)i, framefile);
+            }
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.COLOR, hexcolor);
 
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.SIZE, vector);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.POS, vector);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.SIZE2, vector);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.POS2, vector);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.PART, vector);
 
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.ANCHOR, term);
@@ -40,6 +46,7 @@ namespace UISEditor.Data
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.FSIZE, term);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.BLEND, term);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.TYPE, term);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.INTERVAL, term);
 
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.TEXT, word);
 
@@ -64,9 +71,20 @@ namespace UISEditor.Data
 
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.SHOW, nul);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.HIDE, nul);
+
+            PropertyConstraint.AddPropertyConstraint("m", "move");
+            PropertyConstraint.AddPropertyConstraint("s", "scale");
+            PropertyConstraint.AddPropertyConstraint("w", "width");
+            PropertyConstraint.AddPropertyConstraint("h", "height");
+            PropertyConstraint.AddPropertyConstraint("mx", "movex");
+            PropertyConstraint.AddPropertyConstraint("my", "movey");
+            PropertyConstraint.AddPropertyConstraint("sx", "scalex");
+            PropertyConstraint.AddPropertyConstraint("sy", "scaley");
+            PropertyConstraint.AddPropertyConstraint("r", "rotate");
+            PropertyConstraint.AddPropertyConstraint("f", "fade");
         }
 
-        public static void ParseFile(FileInfo UISFile)
+        public static void ReadFile(FileInfo UISFile)
         {
             using (StreamReader sr = UISFile.OpenText())
             {
@@ -75,7 +93,16 @@ namespace UISEditor.Data
             }
         }
 
-        public static void ParseCode(String code)
+        public static void ReadFile(string UISFile)
+        {
+            using (StreamReader sr = File.OpenText(UISFile))
+            {
+                string code = sr.ReadToEnd();
+                Loader = new UISLoader(code);
+            }
+        }
+
+        public static void ReadCode(String code)
         {
             Loader = new UISLoader(code);
         }
@@ -83,7 +110,7 @@ namespace UISEditor.Data
         private static void move()
         {
             look = Reader.Read();
-            while (look.TokenTag == Tag.LINE_END) look = Reader.Read();
+            //while (look.TokenTag == Tag.LINE_END) look = Reader.Read();
         }
 
         private static bool Test(params Tag[] tags)
@@ -149,12 +176,14 @@ namespace UISEditor.Data
             }
         }
 
-        private static UISInstance ParseInstance()
+        public static UISInstance ParseInstance()
         {
             Reader = new TokenReader(Loader.TokenList);
+            look = Reader.Read();
             instance = new UISInstance();
+            instance.AddObject(uis());
+            return instance;
         }
-
 
     }
 }

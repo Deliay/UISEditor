@@ -62,9 +62,10 @@ namespace UISEditor.Data
     {
         public string id { get; private set; }
         public string value { get; private set; }
-        public AtProperty( int line) : base(Tag.AtProp, "@", line)
+        public AtProperty( int line, string id, string val) : base(Tag.AtProp, "@", line)
         {
-
+            this.id = id;
+            this.value = val;
         }
     }
 
