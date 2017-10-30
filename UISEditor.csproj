@@ -34,7 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>UISEditor.Test.Program</StartupObject>
+    <StartupObject>UISEditor.App</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

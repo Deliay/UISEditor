@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UISEditor.Data.Lexical;
 
-namespace UISEditor.Data
+namespace UISEditor.Data.Parser
 {
     public static partial class UISParser
     {

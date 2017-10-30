@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UISEditor.Data
+namespace UISEditor.Data.Lexical
 {
     public enum Tag
     {
@@ -202,6 +202,13 @@ namespace UISEditor.Data
     public class Tab : Token
     {
         public Tab(int line) : base(Tag.TAB, line)
+        {
+        }
+    }
+
+    public class EOF : Token
+    {
+        public EOF(int line) : base(Tag.FLAG_END, line)
         {
         }
     }

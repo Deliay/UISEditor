@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace UISEditor.Data
 {
-    public class UISInstance
+    public class UISInstance : IEnumerable<UISObject>
     {
         LinkedList<UISObject> ObjectTree = new LinkedList<UISObject>();
 
@@ -32,5 +33,9 @@ namespace UISEditor.Data
         {
             if (!ObjectTree.Contains(obj)) ObjectTree.AddLast(obj);
         }
+
+        public IEnumerator<UISObject> GetEnumerator() => ObjectTree.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ObjectTree.GetEnumerator();
     }
 }

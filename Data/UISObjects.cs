@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UISEditor.Data.Lexical;
 
 namespace UISEditor.Data
 {
@@ -58,6 +59,11 @@ namespace UISEditor.Data
 
             AddPropertyConstraint(AnimationName.SHOW, typeof(UISNull));
             AddPropertyConstraint(AnimationName.HIDE, typeof(UISNull));
+
+            AddPropertyConstraint(ObjectTag.ANI_DEF, ":");
+            AddPropertyConstraint(ObjectTag.PER_DEF, "");
+            AddPropertyConstraint(ObjectTag.USER_DEF, "_");
+            AddPropertyConstraint(ObjectTag.ANI_PROP_DEF, "!");
         }
 
         private static Dictionary<object, LinkedList<object>> Constraint = new Dictionary<object, LinkedList<object>>();
@@ -131,6 +137,7 @@ namespace UISEditor.Data
         TEXT, NULL, TIME,
         ANIMATE_PROP, CURVE,
         ANIMATE_REPEAT, ANIMATE_TRANS,
+        MOTION,
     }
 
     public enum AnimationName
@@ -188,7 +195,7 @@ namespace UISEditor.Data
 
         public override string CombineValue()
         {
-            return $"{Number.ToString()}%";
+            return $"{Number.ToString()}";
         }
     }
 
@@ -258,7 +265,7 @@ namespace UISEditor.Data
             else
             {
                 string perfix = IsAdd ? "+" : string.Empty;
-                return $"{StartTime.Number}, {perfix}{EndTime.Number}";
+                return $"({StartTime.Number}, {perfix}{EndTime.Number})";
 
             }
         }
@@ -281,7 +288,7 @@ namespace UISEditor.Data
             string loop = Repeat ? "r" : string.Empty;
             string count = RepeatTime.Number > 0 ? $",{RepeatTime}" : string.Empty;
 
-            return $"{loop}{RepeatCount}{count}";
+            return $"{loop}{RepeatCount.CombineValue()}{count}";
         }
     }
 
@@ -305,7 +312,21 @@ namespace UISEditor.Data
         {
         }
     }
-    
+
+    public class UISMotion : UISValue
+    {
+        public UISAnimationElement TargetAnimation { get; set; }
+        public UISMotion(UISAnimationElement element) : base(ValueType.MOTION)
+        {
+            this.TargetAnimation = element;
+        }
+
+        public override string CombineValue()
+        {
+            return TargetAnimation.ElementName;
+        }
+    }
+
     public class UISHexColor : UISValue
     {
         public byte Red { get; set; }
@@ -390,6 +411,7 @@ namespace UISEditor.Data
         public UISAnimationProperty(AnimationType prop, UISLiteralValue value) : base(ValueType.ANIMATE_PROP)
         {
             AnimationType = prop;
+            Value = value;
         }
 
         public override string CombineValue()
@@ -463,7 +485,7 @@ namespace UISEditor.Data
 
         public override string ElementCombineValue()
         {
-            return $"_{base.ElementCombineValue()}";
+            return $"{base.ElementCombineValue()}";
         }
     }
 
@@ -512,12 +534,18 @@ namespace UISEditor.Data
     /// </summary>
     public class UISAnimationElement : UISElement<UISAnimation>
     {
-        public UISAnimationElement(string ElementName, bool isMultiSelect = false) : base(ObjectTag.ANI_DEF, ElementName, isMultiSelect)
+        public bool IsInlineAnimationDef { get; set; }
+        public UISAnimationElement(string ElementName, bool isInline, bool isMultiSelect = false) : base(isInline ? ObjectTag.ANI_PROP_DEF : ObjectTag.ANI_DEF, ElementName, isMultiSelect)
         {
+            this.IsInlineAnimationDef = isInline;
         }
 
         public override string ElementCombineValue()
         {
+            if(IsInlineAnimationDef)
+            {
+                return this.ElementCombineValue();
+            }
             return $":{base.ElementCombineValue()}";
         }
     }
@@ -528,6 +556,8 @@ namespace UISEditor.Data
     /// <typeparam name="T"></typeparam>
     public abstract class UISElement<T> : UISObject where T : UISObject
     {
+
+        public ObjectTag ObjectType { get; set; }
         /// <summary>
         /// Target element name
         /// </summary>
@@ -554,6 +584,8 @@ namespace UISEditor.Data
         public UISElement(ObjectTag tokenTag, string ElementName, bool isMultiSelect = false) : base(tokenTag)
         {
             IsMultiSelect = isMultiSelect;
+            ObjectType = tokenTag;
+            this.ElementName = ElementName;
             if (isMultiSelect) Indexs = new UISList<UISNumber>();
 
         }
@@ -582,11 +614,12 @@ namespace UISEditor.Data
         public virtual string ElementCombineValue()
         {
             string multi = IsMultiSelect ? $"-[{string.Join(",", Indexs)}]" : string.Empty;
-
-            return string.Join("\n", 
-                        $"{ElementName}{multi}", 
-                        string.Join("\n\t", Properties.Select(p => p.CombineValue()))
-            );
+            string line = "\n\t";
+            if (ObjectType == ObjectTag.ANI_PROP_DEF)
+            {
+                line = ",";
+            }
+            return $"{PropertyConstraint.GetPropertyConstraint<string>(ObjectType)}{ElementName}{multi}\n\t{string.Join(line, Properties.Select(p => p.CombineValue()))}";
         }
 
         public override string CombineValue()
@@ -608,11 +641,12 @@ namespace UISEditor.Data
         public UISFunctionalElement(FunctionElementType t, string arg) : base(ObjectTag.FUNC_DEF)
         {
             ElemType = t;
+            Argument = arg;
         }
 
         public override string CombineValue()
         {
-            return $"{ElemType.ToString()} {Argument}";
+            return $"@{ElemType.ToString()} {Argument}";
         }
     }
     
@@ -668,11 +702,12 @@ namespace UISEditor.Data
 
         public int Count => List.Count;
 
-        public override string CombineValue() => string.Join("", this.Select(p => p.CombineValue()));
+        public override string CombineValue() => string.Join("\n", this.Select(p => p.CombineValue()));
 
         public IEnumerator<T> GetEnumerator() => List.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => List.GetEnumerator();
+
     }
 
     /// <summary>

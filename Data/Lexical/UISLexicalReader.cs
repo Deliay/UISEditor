@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UISEditor.Data
+namespace UISEditor.Data.Lexical
 {
     public class Reader
     {

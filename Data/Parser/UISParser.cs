@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UISEditor.Data.Lexical;
 
-namespace UISEditor.Data
+namespace UISEditor.Data.Parser
 {
     public static partial class UISParser
     {
@@ -47,7 +48,7 @@ namespace UISEditor.Data
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.BLEND, term);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.TYPE, term);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.INTERVAL, term);
-
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.MOTION, motion);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.TEXT, word);
 
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.MOVE, vector);

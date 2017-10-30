@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UISEditor.Data.Lexical;
 
-namespace UISEditor.Data
+namespace UISEditor.Data.Parser
 {
     /*
      * uis -> cmds elements

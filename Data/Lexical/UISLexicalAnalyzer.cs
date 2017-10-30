@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UISEditor.Data
+namespace UISEditor.Data.Lexical
 {
 
     /// <summary>
@@ -194,6 +194,8 @@ namespace UISEditor.Data
                 this.TokenList.AddLast(tok);
                 tok = Scan();
             } while (Reader.EOF());
+            TokenList.AddLast(new EndOfLine(Reader.CurrentLineNumber));
+            TokenList.AddLast(new EOF(Reader.CurrentLineNumber));
         }
 
     }

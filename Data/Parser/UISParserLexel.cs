@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UISEditor.Data.Lexical;
 
-namespace UISEditor.Data
+namespace UISEditor.Data.Parser
 {
     /// <summary>
     /// Token Parser
@@ -13,6 +14,8 @@ namespace UISEditor.Data
     {
 
         private static Property CURRENT_PROPERTY;
+        private static LinkedList<UISAnimationElement> Animation_Table = new LinkedList<UISAnimationElement>();
+        private static int TEMP_ANIMATION_FLAG = 0;
 
         private static UISList<UISObject> uis()
         {
@@ -95,7 +98,9 @@ namespace UISEditor.Data
         private static UISAnimationElement animationElement()
         {
             ExpectGrammar(Tag.Animation);
-            return ReadElementT(Tag.IDENTITY, v => new UISAnimationElement(v), aniCollect);
+            UISAnimationElement e = ReadElementT(Tag.IDENTITY, v => new UISAnimationElement(v, false), aniCollect);
+            Animation_Table.AddLast(e);
+            return e;
 
             //if (Expect(Tag.Animation))
             //{
@@ -111,6 +116,27 @@ namespace UISEditor.Data
             //    return aniE;
             //}
             //throw new ParseException(look as Word, "Animation element");
+        }
+
+        private static UISMotion motion()
+        {
+            UISAnimationElement result = null;
+            if (Test(Tag.IDENTITY))
+            {
+                Word name = look as Word;
+                ExpectGrammar(Tag.IDENTITY);
+                result = Animation_Table.FirstOrDefault(p => p.ElementName == name.Lexeme);
+                if (result == null) throw new ParseException(name, "Animation not define");
+                return new UISMotion(result);
+            }
+            else if (ExpectGrammar(Tag.AnimationInline))
+            {
+                result = new UISAnimationElement($"INLINE_ANIMATION_{TEMP_ANIMATION_FLAG++}", true);
+                result.AddAllProperty(aniCollect());
+                return new UISMotion(result);
+            }
+
+            throw new ParseException(look as Word, "Unexpection input.");
         }
 
         /// <summary>
@@ -287,7 +313,7 @@ namespace UISEditor.Data
                     default:
                         throw new ParseException(kw, ObjectTag.ANI_PROP_DEF.ToString());
                 }
-            } while (!(Reader.ReadNext() is EndOfLine));
+            } while (!Test(Tag.LINE_END));
 
             return ani;
         }
@@ -431,33 +457,39 @@ namespace UISEditor.Data
         private static UISLiteralValue expr()
         {
             double value = 0;
+            int nagtive = 1;
             Number n;
             RealNumber r;
+            if (Expect(Tag.Index)) nagtive = -1;
+
             if (Test(Tag.NUMBER))
             {
                 n = look as Number;
-                value = n.Value;
+                value = n.Value * nagtive;
                 ExpectGrammar(Tag.NUMBER);
             }
             else if (TestGrammar(Tag.REAL))
             {
                 r = look as RealNumber;
-                value = r.Value;
+                value = r.Value * nagtive;
                 ExpectGrammar(Tag.REAL);
             }
 
-            //px % or literal value
+
+            //px % or other literal value
             if (Test(Tag.IDENTITY))
             {
                 Word t = look as Word;
                 if (t.Lexeme == "px")
                 {
+                    if (nagtive != 1) throw new ParseException(look as Word, "Number request");
                     ExpectGrammar(Tag.IDENTITY);
                     return new UISPixel(value);
                 }
             }
             else if (Expect(Tag.Percent))
             {
+                if (nagtive != 1) throw new ParseException(look as Word, "Number request");
                 return new UISPercent(value);
             }
 
