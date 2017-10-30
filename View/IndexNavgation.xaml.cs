@@ -29,15 +29,20 @@ namespace UISEditor
 
         public void onSwitch()
         {
-            throw new NotImplementedException();
         }
 
         private void FileOpen(object sender, MouseButtonEventArgs e)
         {
             if(e.LeftButton == MouseButtonState.Pressed)
             {
-                MainController.ToEdit();
-                MainController.CreateUISObjectTreeByFile();
+                if(!MainController.CreateUISObjectTreeByFile())
+                {
+                    MainController.ToIndex();
+                }
+                else
+                {
+                    MainController.ToEdit();
+                }
 
             }
         }

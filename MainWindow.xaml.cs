@@ -31,5 +31,10 @@ namespace UISEditor
         {
             MainController.CreateUISObjectTreeByFile();
         }
+
+        private void LoadComplete(object sender, RoutedEventArgs e)
+        {
+            MainController.ToIndex();
+        }
     }
 }

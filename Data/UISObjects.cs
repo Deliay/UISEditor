@@ -676,7 +676,7 @@ namespace UISEditor.Data
         }
     }
 
-    public class UISList<T> : UISObject, IReadOnlyCollection<T> where T : UISObject
+    public class UISList<T> : UISObject, IEnumerable<T>, IReadOnlyCollection<T> where T : UISObject
     {
         LinkedList<T> list = new LinkedList<T>();
 
@@ -721,5 +721,9 @@ namespace UISEditor.Data
             TokenTag = tokenTag;
         }
         public abstract string CombineValue();
+        public override string ToString()
+        {
+            return CombineValue();
+        }
     }
 }

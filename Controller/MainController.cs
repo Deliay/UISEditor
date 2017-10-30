@@ -26,8 +26,6 @@ namespace UISEditor.Controller
         public MainController(MainWindow main)
         {
             mainInstance = main;
-            
-            ToIndex();
         }
 
         public static void ToIndex()
@@ -43,13 +41,17 @@ namespace UISEditor.Controller
         public static void NavgationTo(string Uri)
         {
             Instance.mainInstance.Navgation.Source = new Uri(Uri, UriKind.Relative);
-            if(Instance.mainInstance.Navgation.Content is IViewSwitch s)
+            Instance.mainInstance.Navgation.ContentRendered += (sender, evt) =>
             {
-                s.onSwitch();
-            }
+                if (Instance.mainInstance.Navgation.Content is IViewSwitch s)
+                {
+                    s.onSwitch();
+                }
+            };
+
         }
 
-        public static void CreateUISObjectTreeByFile()
+        public static bool CreateUISObjectTreeByFile()
         {
             Microsoft.Win32.OpenFileDialog ofd = new Microsoft.Win32.OpenFileDialog();
             ofd.Filter = "Supported UIS(*.uis;*.mui)|*.uis;*.mui";
@@ -57,7 +59,9 @@ namespace UISEditor.Controller
             if (ofd.ShowDialog() == true)
             {
                 UISObjectTree.CreateInstance(ofd.FileName);
+                return true;
             }
+            return false;
         }
 
     }

@@ -28,7 +28,7 @@
                 Name="textEditor"
                 FontFamily="Consolas"
                 SyntaxHighlighting="C#"
-                FontSize="10pt" Background="Black" Foreground="White"/>
+                FontSize="10pt"/>
         </DockPanel>
 
     </Grid>

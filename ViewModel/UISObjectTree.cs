@@ -12,7 +12,7 @@ namespace UISEditor.View
     public class UISObjectTree : IEnumerable<UISObject>
     {
         private static UISObjectTree ourInstance = null;
-        public static UISObjectTree Instance { get; }
+        public static UISObjectTree Instance { get => ourInstance; }
         public static void CreateInstance(string FilePath)
         {
             ourInstance = new UISObjectTree(FilePath);

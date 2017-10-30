@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using UISEditor.Controller;
+using UISEditor.Data;
 
 namespace UISEditor.View
 {
@@ -28,7 +29,25 @@ namespace UISEditor.View
 
         public void onSwitch()
         {
-            this.tvUISTree.ItemsSource = UISObjectTree.Instance;
+            tvUISTree.Items.Add(PutListToTreeView(new TreeViewItem() { Header = "root" }, UISObjectTree.Instance));
+            if (tvUISTree.Items.Count >= 2) tvUISTree.Items.RemoveAt(1);
+            textEditor.Text = string.Join("", UISObjectTree.Instance.Select(p => p.CombineValue()));
+        }
+
+        public TreeViewItem PutListToTreeView(TreeViewItem parent, IEnumerable<UISObject> list)
+        {
+            foreach (var item in list)
+            {
+                if (item.TokenTag == ObjectTag._SYS_LIST_)
+                {
+                    PutListToTreeView(parent, item as IEnumerable<UISObject>);
+                }
+                else
+                {
+                    parent.Items.Add(item.TokenTag.ToString());
+                }
+            }
+            return parent;
         }
     }
 }

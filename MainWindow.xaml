@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UISEditor"
         mc:Ignorable="d"
-        Title="UIS Editor - PREVIEW VERSION - " Height="473.558" Width="732.43" MinWidth="325" WindowStartupLocation="CenterScreen">
+        Title="UIS Editor - PREVIEW VERSION - " Height="473.558" Width="732.43" MinWidth="325" WindowStartupLocation="CenterScreen" Loaded="LoadComplete">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="24" MaxHeight="32"/>
