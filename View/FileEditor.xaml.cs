@@ -14,22 +14,21 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using UISEditor.Controller;
 
-namespace UISEditor
+namespace UISEditor.View
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// FileEditor.xaml 的交互逻辑
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class FileEditor : Page, IViewSwitch
     {
-        public MainWindow()
+        public FileEditor()
         {
             InitializeComponent();
-            MainController.Allocate(this);
         }
 
-        private void OpenFile(object sender, RoutedEventArgs e)
+        public void onSwitch()
         {
-            MainController.CreateUISObjectTreeByFile();
+            this.tvUISTree.ItemsSource = UISObjectTree.Instance;
         }
     }
 }

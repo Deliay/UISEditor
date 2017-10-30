@@ -17,19 +17,29 @@ using UISEditor.Controller;
 namespace UISEditor
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// IndexNavgation.xaml 的交互逻辑
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class IndexNavgation : Page, IViewSwitch
     {
-        public MainWindow()
+        public IndexNavgation()
         {
             InitializeComponent();
-            MainController.Allocate(this);
+            this.Version.Content = "Version: NaN Perview";
         }
 
-        private void OpenFile(object sender, RoutedEventArgs e)
+        public void onSwitch()
         {
-            MainController.CreateUISObjectTreeByFile();
+            throw new NotImplementedException();
+        }
+
+        private void FileOpen(object sender, MouseButtonEventArgs e)
+        {
+            if(e.LeftButton == MouseButtonState.Pressed)
+            {
+                MainController.ToEdit();
+                MainController.CreateUISObjectTreeByFile();
+
+            }
         }
     }
 }

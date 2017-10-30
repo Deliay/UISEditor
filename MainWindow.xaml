@@ -5,8 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UISEditor"
         mc:Ignorable="d"
-        Title="MainWindow" Height="398.116" Width="608.814">
+        Title="UIS Editor - PREVIEW VERSION - " Height="473.558" Width="732.43" MinWidth="325" WindowStartupLocation="CenterScreen">
     <Grid>
-
+        <Grid.RowDefinitions>
+            <RowDefinition Height="24" MaxHeight="32"/>
+            <RowDefinition Height="1*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <DockPanel Grid.Row="0" >
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="File">
+                    <MenuItem Header="Open" Click="OpenFile"></MenuItem>
+                    <MenuItem Header="Close"></MenuItem>
+                    <Separator />
+                    <MenuItem Header="Reload"></MenuItem>
+                    <Separator />
+                    <MenuItem Header="Exit"></MenuItem>
+                </MenuItem>
+            </Menu>
+        </DockPanel>
+        <DockPanel Grid.Row="1">
+            <Frame Name="Navgation" NavigationUIVisibility="Hidden" Content="Loading..."></Frame>
+        </DockPanel>
     </Grid>
 </Window>

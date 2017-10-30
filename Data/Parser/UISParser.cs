@@ -10,6 +10,10 @@ namespace UISEditor.Data.Parser
 {
     public static partial class UISParser
     {
+
+        public static event EventHandler onParseStart;
+        public static event EventHandler<UISInstance> onParseComplete;
+
         private static UISLoader Loader;
         private static TokenReader Reader { get; set; }
         private static Token look;
@@ -182,7 +186,9 @@ namespace UISEditor.Data.Parser
             Reader = new TokenReader(Loader.TokenList);
             look = Reader.Read();
             instance = new UISInstance();
+            onParseStart?.Invoke(instance, new EventArgs());
             instance.AddObject(uis());
+            onParseComplete?.Invoke(instance, instance);
             return instance;
         }
 
