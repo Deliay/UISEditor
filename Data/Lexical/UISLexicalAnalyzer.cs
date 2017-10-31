@@ -78,11 +78,11 @@ namespace UISEditor.Data.Lexical
                 string val = string.Empty;
                 do
                 {
-                    val += peek;
                     peek = Reader.ReadChar();
-                } while (peek == '\n' && Reader.EOF());
+                    val += peek;
+                } while (peek != '\n' && Reader.EOF());
                 Reader.Back();
-                return new HexString(val, Reader.CurrentLineNumber);
+                return new Comment(Reader.CurrentLineNumber, val);
             }
 
             if (char.IsDigit(peek))
@@ -125,7 +125,7 @@ namespace UISEditor.Data.Lexical
 
             if (peek == ']')
             {
-                return new IndexArrayLeft(Reader.CurrentLineNumber);
+                return new IndexArrayRight(Reader.CurrentLineNumber);
             }
 
             if (peek == '@')

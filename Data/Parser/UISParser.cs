@@ -15,7 +15,7 @@ namespace UISEditor.Data.Parser
         public static event EventHandler<UISInstance> onParseComplete;
 
         private static UISLoader Loader;
-        private static TokenReader Reader { get; set; }
+        public static TokenReader Reader { get; set; }
         private static Token look;
         private static UISInstance instance;
 
@@ -51,6 +51,7 @@ namespace UISEditor.Data.Parser
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.FSIZE, term);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.BLEND, term);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.TYPE, term);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.TYPE2, term);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.INTERVAL, term);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.MOTION, motion);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.TEXT, word);
@@ -115,7 +116,13 @@ namespace UISEditor.Data.Parser
         private static void move()
         {
             look = Reader.Read();
-            //while (look.TokenTag == Tag.LINE_END) look = Reader.Read();
+            while (look.TokenTag == Tag.Comment) look = Reader.Read();
+        }
+
+        private static void move_line()
+        {
+            look = Reader.Read();
+            while (Test(Tag.Comment, Tag.LINE_END)) look = Reader.Read();
         }
 
         private static bool Test(params Tag[] tags)
@@ -184,7 +191,7 @@ namespace UISEditor.Data.Parser
         public static UISInstance ParseInstance()
         {
             Reader = new TokenReader(Loader.TokenList);
-            look = Reader.Read();
+            move();
             instance = new UISInstance();
             onParseStart?.Invoke(instance, new EventArgs());
             instance.AddObject(uis());

@@ -19,6 +19,7 @@ namespace UISEditor.Data.Parser
 
         private static UISList<UISObject> uis()
         {
+            move_line();
             UISList<UISObject> list = new UISList<UISObject>
             {
                 cmds(),
@@ -71,16 +72,27 @@ namespace UISEditor.Data.Parser
         {
             Func<string, UISPredefineElement> generator = v => {
                 string tag = (look as Word).Lexeme;
-                ExpectGrammar(Tag.IDENTITY);
-                if(Expect(Tag.Index))
+                
+                // A-B or judge-N
+                if(Reader.ReadNext(1).TokenTag == (Tag.Index))
                 {
-                    if(Test(Tag.IDENTITY)) tag += $"_{(look as Word).Lexeme}";
-                    if(tag == "judge" && Test(Tag.NUMBER))
+                    // A-B
+                    if (Reader.ReadNext(2).TokenTag == (Tag.IDENTITY))
                     {
+                        ExpectGrammar(Tag.IDENTITY);
+                        ExpectGrammar(Tag.Index);
+                        // reserve a tag for generic reader func
+                        tag += $"_{(look as Word).Lexeme}";
+                    }
+                    else if (tag == "judge" && Reader.ReadNext(1).TokenTag == Tag.NUMBER)
+                    {
+                        ExpectGrammar(Tag.IDENTITY);
+                        ExpectGrammar(Tag.Index);
                         Number vr = look as Number;
                         ExpectGrammar(Tag.NUMBER);
                         return new UISPredefine_JUDGE_N_Element(vr);
                     }
+                    // A-[arr] pass to generic raeder
                 }
                 if (!Enum.TryParse(tag, true, out PredefineElementType type)) throw new ParseException(look as Word, typeof(PredefineElementType).ToString());
                 return new UISPredefineElement(type);

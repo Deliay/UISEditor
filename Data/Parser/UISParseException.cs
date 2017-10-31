@@ -11,14 +11,14 @@ namespace UISEditor.Data.Parser
     {
         public class TokenWrongException : Exception
         {
-            public TokenWrongException(Token token, params Tag[] except) : base("Ln " + token.Line + ", " + token.TokenTag.ToString() + " should " + except[0])
+            public TokenWrongException(Token token, params Tag[] except) : base("Ln " + Reader.RealLine + ", " + token.TokenTag.ToString() + " should " + except[0])
             {
 
             }
         }
         public class ParseException : Exception
         {
-            public ParseException(Word token, string expect) : base($"Ln {token.Line}, {token.Lexeme} should {expect}")
+            public ParseException(Word token, string expect) : base($"Ln {Reader.RealLine}, {token.Lexeme} should {expect}")
             {
 
             }

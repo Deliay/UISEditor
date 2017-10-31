@@ -54,11 +54,11 @@ namespace UISEditor.Data.Parser
      * */
 
 
-    class TokenReader
+    public class TokenReader
     {
         List<Token> tokens;
         int currentIndex = 0;
-
+        public int RealLine { get; set; } = 1;
         public TokenReader(IEnumerable<Token> tokens)
         {
             this.tokens = new List<Token>(tokens);
@@ -71,13 +71,24 @@ namespace UISEditor.Data.Parser
 
         public Token Read()
         {
-            return tokens[currentIndex++];
-
+            var tok = tokens[currentIndex++];
+            if (tok is EndOfLine) RealLine++;
+            return tok;
         }
 
         public Token ReadNext()
         {
             return tokens[currentIndex];
+        }
+
+        public Token ReadRealNext()
+        {
+            return tokens[currentIndex + 1];
+        }
+
+        public Token ReadNext(int next)
+        {
+            return tokens[currentIndex + next];
         }
 
         public void Reset()

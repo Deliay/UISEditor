@@ -20,6 +20,7 @@ namespace UISEditor.Data.Lexical
         RightPar = ')',
         LeftBar = '[',
         RightBar = ']',
+        Comment = '#',
         Percent = '%',
         Animation = ':',
         Dot = '.',
@@ -87,6 +88,15 @@ namespace UISEditor.Data.Lexical
     {
         public Equal(int line) : base(Tag.Equal, "=", line)
         {
+        }
+    }
+
+    public class Comment : Operator
+    {
+        public string Value { get; private set; }
+        public Comment(int line, string value) : base(Tag.Comment, "#", line)
+        {
+            this.Value = value;
         }
     }
 
