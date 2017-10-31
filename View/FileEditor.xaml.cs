@@ -34,20 +34,72 @@ namespace UISEditor.View
             textEditor.Text = string.Join("", UISObjectTree.Instance.Select(p => p.CombineValue()));
         }
 
+        public class ItemWrapper
+        {
+            public string Name { get; private set; }
+            public UISObject Item { get; private set; }
+            public ItemWrapper(UISObject item)
+            {
+                Item = item;
+                Name = Item.ObjectTreeName();
+            }
+
+            public override string ToString() => Name;
+        }
+
+        public class PropertyWrapper
+        {
+            public string Name { get; set; }
+            public object Value { get; set; }
+        }
+
         public TreeViewItem PutListToTreeView(TreeViewItem parent, IEnumerable<UISObject> list)
         {
             foreach (var item in list)
             {
-                if (item.TokenTag == ObjectTag._SYS_LIST_)
+                switch (item.TokenTag)
                 {
-                    PutListToTreeView(parent, item as IEnumerable<UISObject>);
-                }
-                else
-                {
-                    parent.Items.Add(item.TokenTag.ToString());
+                    case ObjectTag.ANI_PROP_DEF:
+                    case ObjectTag.ANI_DEF:
+                    case ObjectTag.PER_DEF:
+                    case ObjectTag.USER_DEF:
+                    case ObjectTag._SYS_LIST_:
+                        parent.Items.Add(PutListToTreeView(new TreeViewItem() { Header = new ItemWrapper(item) }, item as IEnumerable<UISObject>));
+                        break;
+                    default:
+                        parent.Items.Add(new ItemWrapper(item));
+                        break;
                 }
             }
             return parent;
+        }
+
+        public void LoadProperty(object sender)
+        {
+            tvElementProperty.Items.Clear();
+            ItemWrapper wrapper = (sender as ItemWrapper);
+            if (wrapper == null)
+            {
+                wrapper = ((TreeViewItem)sender)?.Header as ItemWrapper;
+            }
+            if (wrapper == null)
+            {
+                return;
+            }
+                UISObject target = wrapper.Item;
+            Type t = target.GetType();
+            var list = t.GetProperties();
+            foreach (var item in list)
+            {
+                object value = item.GetValue(target);
+                if(value != null)
+                    tvElementProperty.Items.Add(new PropertyWrapper { Name = item.Name, Value = value.ToString() });
+            }
+        }
+
+        private void ChangeSelection(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            LoadProperty(e.NewValue);
         }
     }
 }

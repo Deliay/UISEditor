@@ -36,7 +36,7 @@ namespace UISEditor.Data
             AddPropertyConstraint(Property.BLEND, typeof(UISNumber));
             AddPropertyConstraint(Property.TYPE, typeof(UISNumber));
 
-            AddPropertyConstraint(Property.TEXT, typeof(UISWord));
+            //AddPropertyConstraint(Property.TEXT, typeof(UISWord));
 
             AddPropertyConstraint(AnimationName.MOVE, typeof(UISVector));
             AddPropertyConstraint(AnimationName.SCALE, typeof(UISVector));
@@ -169,6 +169,8 @@ namespace UISEditor.Data
         {
             return $"{Pixel.ToString()}px";
         }
+
+        public override string ObjectTreeName() => CombineValue();
     }
 
     public class UISPercent : UISLiteralValue
@@ -183,6 +185,7 @@ namespace UISEditor.Data
         {
             return $"{Percent.ToString()}%";
         }
+        public override string ObjectTreeName() => CombineValue();
     }
     
     public class UISNumber : UISLiteralValue
@@ -197,6 +200,7 @@ namespace UISEditor.Data
         {
             return $"{Number.ToString()}";
         }
+        public override string ObjectTreeName() => CombineValue();
     }
 
     public class UISCurve : UISLiteralValue
@@ -211,6 +215,7 @@ namespace UISEditor.Data
         {
             return $"({string.Join(",", Points.Select(p => p.CombineValue()))})";
         }
+        public override string ObjectTreeName() => CombineValue();
     }
 
     public class UISText : UISLiteralValue
@@ -225,6 +230,7 @@ namespace UISEditor.Data
         {
             return Text;
         }
+        public override string ObjectTreeName() => CombineValue();
     }
 
     public class UISSimpleExpr : UISLiteralValue
@@ -243,6 +249,7 @@ namespace UISEditor.Data
             string op = IsAdd ? "+" : "-";
             return $"{First.CombineValue()}{op}{Second.CombineValue()}";
         }
+        public override string ObjectTreeName() => CombineValue();
     }
 
     public class UISAnimationTime : UISLiteralValue
@@ -269,6 +276,7 @@ namespace UISEditor.Data
 
             }
         }
+        public override string ObjectTreeName() => CombineValue();
     }
 
     public class UISAnimationRepeat : UISLiteralValue
@@ -290,6 +298,7 @@ namespace UISEditor.Data
 
             return $"{loop}{RepeatCount.CombineValue()}{count}";
         }
+        public override string ObjectTreeName() => CombineValue();
     }
 
     public class UISAnimationCurve : UISLiteralValue
@@ -304,6 +313,7 @@ namespace UISEditor.Data
         {
             return AnimationCurve.CombineValue();
         }
+        public override string ObjectTreeName() => CombineValue();
     }
 
     public abstract class UISLiteralValue : UISValue
@@ -311,6 +321,7 @@ namespace UISEditor.Data
         public UISLiteralValue(ValueType type) : base(type)
         {
         }
+        public override string ObjectTreeName() => CombineValue();
     }
 
     public class UISMotion : UISValue
@@ -325,6 +336,8 @@ namespace UISEditor.Data
         {
             return TargetAnimation.ElementName;
         }
+
+        public override string ObjectTreeName() => TargetAnimation.ElementName;
     }
 
     public class UISHexColor : UISValue
@@ -343,7 +356,7 @@ namespace UISEditor.Data
         }
 
         public override string CombineValue() =>  $"#{Red.ToString("{0:X}")}{Green.ToString("{0:X}")}{Blue.ToString("{0:X}")}";
-        
+        public override string ObjectTreeName() => CombineValue();
     }
     
     public class UISVector : UISValue
@@ -365,6 +378,7 @@ namespace UISEditor.Data
             if (IncludeByPar) return $"({value})";
             return value;
         }
+        public override string ObjectTreeName() => CombineValue();
     }
     
     public class UISFrameFile : UISValue
@@ -383,6 +397,7 @@ namespace UISEditor.Data
         {
             return $"{FileName}/{StartFrame}-{EndFrame}";
         }
+        public override string ObjectTreeName() => CombineValue();
     }
     
     public class UISFileName : UISValue
@@ -397,6 +412,7 @@ namespace UISEditor.Data
         {
             return FileName;
         }
+        public override string ObjectTreeName() => CombineValue();
     }
 
 
@@ -418,6 +434,7 @@ namespace UISEditor.Data
         {
             return string.Join("=", AnimationType.ToString(), Value.CombineValue());
         }
+        public override string ObjectTreeName() => $"{this.AnimationType.ToString()}";
     }
 
     public abstract class UISValue : UISObject
@@ -427,16 +444,17 @@ namespace UISEditor.Data
         {
 
         }
+        public override string ObjectTreeName() => CombineValue();
     }
 
     /// <summary>
     /// UIS Animation
     /// <para>Manager the animation property of element property</para>
     /// </summary>
-    public class UISAnimation : UISObject
+    public class UISAnimation : UISObject, IEnumerable<UISAnimationProperty>
     {
         public AnimationName Name { get; set; }
-        public LinkedList<UISAnimationProperty> AnimationProperties { get; private set; } = new LinkedList<UISAnimationProperty>();
+        public UISList<UISAnimationProperty> AnimationProperties { get; private set; } = new UISList<UISAnimationProperty>();
         public UISAnimation(AnimationName name) : base(ObjectTag.ANI_PROP_DEF)
         {
             this.Name = name;
@@ -444,13 +462,18 @@ namespace UISEditor.Data
 
         public void AddAnimationProperty(UISAnimationProperty prop)
         {
-            AnimationProperties.AddLast(prop);
+            AnimationProperties.Add(prop);
         }
 
         public override string CombineValue()
         {
             return string.Join(",", $"name={Name.ToString()}", string.Join(",", AnimationProperties.Select(p => p.CombineValue())));
         }
+        public override string ObjectTreeName() => $"{Name.ToString()}";
+
+        public IEnumerator<UISAnimationProperty> GetEnumerator() => AnimationProperties.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => AnimationProperties.GetEnumerator();
     }
 
     /// <summary>
@@ -471,6 +494,7 @@ namespace UISEditor.Data
         {
             return string.Join("=", Property.ToString(), Value.CombineValue());
         }
+        public override string ObjectTreeName() => $"{Property.ToString()}";
     }
 
     /// <summary>
@@ -487,6 +511,7 @@ namespace UISEditor.Data
         {
             return $"{base.ElementCombineValue()}";
         }
+        public override string ObjectTreeName() => $"{ElementName}";
     }
 
     /// <summary>
@@ -523,7 +548,7 @@ namespace UISEditor.Data
         {
             return base.ElementCombineValue();
         }
-
+        public override string ObjectTreeName() => $"{ElemType.ToString()}";
     }
 
 
@@ -548,13 +573,15 @@ namespace UISEditor.Data
             }
             return $":{base.ElementCombineValue()}";
         }
+
+        public override string ObjectTreeName() => $"{ElementName}";
     }
 
     /// <summary>
     /// A generic collection for top-level element
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class UISElement<T> : UISObject where T : UISObject
+    public abstract class UISElement<T> : UISObject, IEnumerable<T> where T : UISObject
     {
 
         public ObjectTag ObjectType { get; set; }
@@ -627,6 +654,9 @@ namespace UISEditor.Data
             return ElementCombineValue();
         }
 
+        public IEnumerator<T> GetEnumerator() => Properties.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => Properties.GetEnumerator();
     }
 
     //start with @
@@ -648,21 +678,22 @@ namespace UISEditor.Data
         {
             return $"@{ElemType.ToString()} {Argument}";
         }
+        public override string ObjectTreeName() => $"{ElemType.ToString()}";
     }
     
-    public class UISWord : UISObject
-    {
-        public string Literal { get; private set; }
-        public UISWord(string literal) : base(ObjectTag.TEXT)
-        {
-            Literal = literal;
-        }
+    //public class UISWord : UISObject
+    //{
+    //    public string Literal { get; private set; }
+    //    public UISWord(string literal) : base(ObjectTag.TEXT)
+    //    {
+    //        Literal = literal;
+    //    }
 
-        public override string CombineValue()
-        {
-            return Literal;
-        }
-    }
+    //    public override string CombineValue()
+    //    {
+    //        return Literal;
+    //    }
+    //}
 
     public class UISNull : UISValue
     {
@@ -708,6 +739,7 @@ namespace UISEditor.Data
 
         IEnumerator IEnumerable.GetEnumerator() => List.GetEnumerator();
 
+        public override string ObjectTreeName() => $"List[{typeof(T).Name}]";
     }
 
     /// <summary>
@@ -716,6 +748,7 @@ namespace UISEditor.Data
     public abstract class UISObject
     {
         public ObjectTag TokenTag { get; private set; }
+        public abstract string ObjectTreeName();
         public UISObject(ObjectTag tokenTag)
         {
             TokenTag = tokenTag;
@@ -723,7 +756,7 @@ namespace UISEditor.Data
         public abstract string CombineValue();
         public override string ToString()
         {
-            return CombineValue();
+            return ObjectTreeName();
         }
     }
 }

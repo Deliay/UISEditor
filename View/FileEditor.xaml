@@ -14,14 +14,31 @@
             <ColumnDefinition Width="6*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <DockPanel Grid.Column="0">
-            <TreeView x:Name="tvUISTree">
-                <TreeView.ItemBindingGroup>
-                    <BindingGroup/>
-                </TreeView.ItemBindingGroup>
-
-            </TreeView>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="3*"></RowDefinition>
+                    <RowDefinition Height="2px"></RowDefinition>
+                    <RowDefinition Height="1*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <DockPanel Grid.Row="0">
+                    <TreeView x:Name="tvUISTree" SelectedItemChanged="ChangeSelection">
+                    </TreeView>
+                </DockPanel>
+                <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch"/>
+                <DockPanel Grid.Row="2">
+                    <ListView x:Name="tvElementProperty">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="Name"></GridViewColumn>
+                                <GridViewColumn DisplayMemberBinding="{Binding Value}" Header="Name"></GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </DockPanel>
+                
+            </Grid>
         </DockPanel>
-        <GridSplitter Width="5"/>
+        <GridSplitter Width="3"/>
         <DockPanel Grid.Column="1">
             <avalonEdit:TextEditor
                 xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
