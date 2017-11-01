@@ -72,9 +72,9 @@ namespace UISEditor.Data.Parser
         {
             Func<string, UISPredefineElement> generator = v => {
                 string tag = (look as Word).Lexeme;
-                
+                int index = 0;
                 // A-B or judge-N
-                if(Reader.ReadNext(1).TokenTag == (Tag.Index))
+                if(Reader.ReadNext().TokenTag == (Tag.Index))
                 {
                     // A-B
                     if (Reader.ReadNext(2).TokenTag == (Tag.IDENTITY))
@@ -84,18 +84,18 @@ namespace UISEditor.Data.Parser
                         // reserve a tag for generic reader func
                         tag += $"_{(look as Word).Lexeme}";
                     }
-                    else if (tag == "judge" && Reader.ReadNext(1).TokenTag == Tag.NUMBER)
+                    else if (Reader.ReadNext(1).TokenTag == Tag.NUMBER)
                     {
                         ExpectGrammar(Tag.IDENTITY);
                         ExpectGrammar(Tag.Index);
                         Number vr = look as Number;
                         ExpectGrammar(Tag.NUMBER);
-                        return new UISPredefine_JUDGE_N_Element(vr);
+                        index = vr.Value;
                     }
                     // A-[arr] pass to generic raeder
                 }
                 if (!Enum.TryParse(tag, true, out PredefineElementType type)) throw new ParseException(look as Word, typeof(PredefineElementType).ToString());
-                return new UISPredefineElement(type);
+                return new UISPredefineElement(type) { Index = index };
             };
             return ReadElementT(Tag.IDENTITY, generator, props);
         }
@@ -466,7 +466,7 @@ namespace UISEditor.Data.Parser
         /// <para>number</para>
         /// </summary>
         /// <returns></returns>
-        private static UISLiteralValue expr()
+        private static UISLiteralValue expr(bool pass = false)
         {
             double value = 0;
             int nagtive = 1;
@@ -496,17 +496,29 @@ namespace UISEditor.Data.Parser
                 {
                     if (nagtive != 1) throw new ParseException(look as Word, "Number request");
                     ExpectGrammar(Tag.IDENTITY);
-                    return new UISPixel(value);
+                    
+                    return increase(new UISPixel(value), pass);
                 }
             }
             else if (Expect(Tag.Percent))
             {
                 if (nagtive != 1) throw new ParseException(look as Word, "Number request");
-                return new UISPercent(value);
+                return increase(new UISPercent(value), pass);
             }
 
-            return new UISNumber(value);
+            return increase(new UISNumber(value), pass);
 
+        }
+
+        private static UISLiteralValue increase(UISLiteralValue src, bool pass = false)
+        {
+            if (pass) return src;
+            if (Expect(Tag.Increase))
+            {
+                src.IndexIncreasable = true;
+                src.IndexIncrease = expr(true);
+            }
+            return src;
         }
 
         /// <summary>

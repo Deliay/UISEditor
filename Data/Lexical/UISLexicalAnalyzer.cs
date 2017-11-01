@@ -182,6 +182,11 @@ namespace UISEditor.Data.Lexical
                 return new Equal(Reader.CurrentLineNumber);
             }
 
+            if(peek == '$')
+            {
+                return new Increase(Reader.CurrentLineNumber);
+            }
+
             Token t = new Token(peek, Reader.CurrentLineNumber);
             return t;
         }

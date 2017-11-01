@@ -191,10 +191,12 @@ namespace UISEditor.Data
     
     public class UISNumber : UISLiteralValue
     {
-        public double Number { get; private set; }
+        public double Number { get; set; }
         public UISNumber(double number) : base(ValueType.NUMBER)
         {
             Number = number;
+            IndexIncreasable = false;
+            IndexIncrease = null;
         }
 
         public override string CombineValue()
@@ -319,6 +321,8 @@ namespace UISEditor.Data
 
     public abstract class UISLiteralValue : UISValue
     {
+        public bool IndexIncreasable { get; set; }
+        public UISLiteralValue IndexIncrease { get; set; }
         public UISLiteralValue(ValueType type) : base(type)
         {
         }
@@ -516,29 +520,12 @@ namespace UISEditor.Data
     }
 
     /// <summary>
-    /// UIS JudgePredefineElement
-    /// </summary>
-    public class UISPredefine_JUDGE_N_Element : UISPredefineElement
-    {
-        int Value { get; set; }
-        public UISPredefine_JUDGE_N_Element(Number value) : base(PredefineElementType.JUDGE)
-        {
-            this.Value = value.Value;
-        }
-
-        public override string ElementCombineValue()
-        {
-            return base.ElementCombineValue();
-        }
-
-    }
-
-    /// <summary>
     /// UIS PreDefined Element 
     /// <para>Manager per-defined element</para>
     /// </summary>
     public class UISPredefineElement : UISElement<UISProperty>
     {
+        public int Index { get; set; } = 0;
         public PredefineElementType ElemType { get; set; }
         public UISPredefineElement(PredefineElementType t) : base(ObjectTag.PER_DEF, t.ToString().ToLower())
         {

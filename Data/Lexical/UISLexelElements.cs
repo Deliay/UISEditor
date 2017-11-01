@@ -23,6 +23,7 @@ namespace UISEditor.Data.Lexical
         Comment = '#',
         Percent = '%',
         Animation = ':',
+        Increase = '$',
         Dot = '.',
         AnimationInline = '!',
         FrameRangeDiv = '/',
@@ -80,6 +81,13 @@ namespace UISEditor.Data.Lexical
     public class Dot : Operator
     {
         public Dot(int line) : base(Tag.Dot, ".", line)
+        {
+        }
+    }
+
+    public class Increase : Operator
+    {
+        public Increase(int line) : base(Tag.Increase, "$", line)
         {
         }
     }
