@@ -75,9 +75,9 @@ namespace UISEditor.Data.Parser
                 int index = 0;
                 // A-B or judge-N
                 if(Reader.ReadNext().TokenTag == (Tag.Index))
-                {
+                { 
                     // A-B
-                    if (Reader.ReadNext(2).TokenTag == (Tag.IDENTITY))
+                    if (Reader.ReadNext(1).TokenTag == (Tag.IDENTITY))
                     {
                         ExpectGrammar(Tag.IDENTITY);
                         ExpectGrammar(Tag.Index);
@@ -528,21 +528,17 @@ namespace UISEditor.Data.Parser
         /// <returns>Return a initialized <see cref="UISFileName"/> instance.</returns>
         private static UISFileName filename()
         {
-            Word value;
-            string id1 = string.Empty, id2 = string.Empty;
-
-            TestGrammar(Tag.IDENTITY);
-            value = look as Word;
-            ExpectGrammar(Tag.IDENTITY);
-            id1 = value.Lexeme;
-
-            ExpectGrammar(Tag.Dot);
-            TestGrammar(Tag.IDENTITY);
-            value = look as Word;
-            ExpectGrammar(Tag.IDENTITY);
-            id2 = value.Lexeme;
-
-            return new UISFileName(string.Join(".", id1, id2));
+            string id1 = string.Empty;
+            while(!Test(Tag.LINE_END))
+            {
+                if(look is Word word)
+                {
+                    Expect(look.TokenTag);
+                    id1 += word.Lexeme;
+                }
+            }
+            
+            return new UISFileName(id1);
         }
 
         /// <summary>

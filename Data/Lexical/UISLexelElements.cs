@@ -188,19 +188,19 @@ namespace UISEditor.Data.Lexical
     }
 
 
-    public class Number : Token
+    public class Number : Word
     {
         public int Value { get; private set; }
-        public Number(int value, int line) : base(Tag.NUMBER, line)
+        public Number(int value, int line) : base(Tag.NUMBER, value.ToString(), line)
         {
             Value = value;
         }
     }
 
-    public class RealNumber : Token
+    public class RealNumber : Word
     {
         public double Value { get; private set; }
-        public RealNumber(double value, int line) : base(Tag.REAL, line)
+        public RealNumber(double value, int line) : base(Tag.REAL, value.ToString(), line)
         {
             Value = value;
         }
