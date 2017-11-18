@@ -563,12 +563,16 @@ namespace UISEditor.Data.Parser
         {
             // frame/0-10
             // ID DIV NUMBER INDEX NUMBER
-            Word p;
             Number n1, n2;
-
-            TestGrammar(Tag.IDENTITY);
-            p = look as Word;
-            ExpectGrammar(Tag.IDENTITY);
+            string id1 = string.Empty;
+            while (!Test(Tag.FrameRangeDiv))
+            {
+                if (look is Word word)
+                {
+                    Expect(look.TokenTag);
+                    id1 += word.Lexeme;
+                }
+            }
 
             ExpectGrammar(Tag.FrameRangeDiv);
 
@@ -582,7 +586,7 @@ namespace UISEditor.Data.Parser
             n2 = look as Number;
             ExpectGrammar(Tag.NUMBER);
 
-            return new UISFrameFile(p.Lexeme, n1.Value, n2.Value);
+            return new UISFrameFile(id1, n1.Value, n2.Value);
         }
 
     }
