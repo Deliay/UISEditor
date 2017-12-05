@@ -578,7 +578,6 @@ namespace UISEditor.Data.Parser
         {
             // frame/0-10
             // ID DIV NUMBER INDEX NUMBER
-<<<<<<< HEAD
             string id = string.Empty;
             Number n1, n2;
 
@@ -588,16 +587,6 @@ namespace UISEditor.Data.Parser
                 {
                     Expect(look.TokenTag);
                     id += word.Lexeme;
-=======
-            Number n1, n2;
-            string id1 = string.Empty;
-            while (!Test(Tag.FrameRangeDiv))
-            {
-                if (look is Word word)
-                {
-                    Expect(look.TokenTag);
-                    id1 += word.Lexeme;
->>>>>>> 49cb0624c115bf0419b65fe81dcc944e5bda0dbe
                 }
             }
 
@@ -613,7 +602,6 @@ namespace UISEditor.Data.Parser
             n2 = look as Number;
             ExpectGrammar(Tag.NUMBER);
 
-<<<<<<< HEAD
             return new UISFrameFile(id, n1.Value, n2.Value);
         }
 
@@ -627,9 +615,6 @@ namespace UISEditor.Data.Parser
             ExpectGrammar(Tag.Split);
             UISLiteralValue y = expr();
             return new UISRect(h, w, x, y);
-=======
-            return new UISFrameFile(id1, n1.Value, n2.Value);
->>>>>>> 49cb0624c115bf0419b65fe81dcc944e5bda0dbe
         }
 
     }
