@@ -29,13 +29,12 @@ namespace UISEditor.Data.Parser
         private static void InitConstraint()
         {
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.TEX, filename);
-            for (int i = 39; i < 48; i++)
+            for (int i = (int)Property.TEX2; i < (int)Property.TEX10; i++)
             {
                 PropertyConstraint.AddPropertyConstraint<Func<UISValue>>((Property)i, filename);
             }
-
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.FRAME, framefile);
-            for (int i = 19; i < 38; i++)
+            for (int i = (int)Property.FRAME2; i < (int)Property.FRAME20; i++)
             {
                 PropertyConstraint.AddPropertyConstraint<Func<UISValue>>((Property)i, framefile);
             }
