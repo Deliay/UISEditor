@@ -53,6 +53,7 @@ namespace UISEditor.Data.Parser
             UISList<UISObject> currentList = new UISList<UISObject>();
             while(true)
             {
+                while (Test(Tag.LINE_END)) Expect(Tag.LINE_END);
                 var item = element();
                 if (item != null) currentList.Add(item);
                 else break;
@@ -181,7 +182,17 @@ namespace UISEditor.Data.Parser
                 if (Expect(Tag.Index))
                 {
                     result.IsMultiSelect = true;
-                    result.Indexs = indexs();
+                    if (Test(Tag.LeftBar))
+                    {
+                        result.Indexs = indexs();
+                    }
+                    else
+                    {
+                        result.Indexs = new UISList<UISNumber>
+                        {
+                            expr() as UISNumber
+                        };
+                    }
                 }
                 Expect(Tag.LINE_END);
                 result.AddAllProperty(readFunc());
@@ -547,11 +558,15 @@ namespace UISEditor.Data.Parser
         /// <returns></returns>
         private static UISText word()
         {
+            string final = string.Empty;
             Word result;
-            TestGrammar(Tag.IDENTITY);
-            result = look as Word;
-            ExpectGrammar(Tag.IDENTITY);
-            return new UISText(result.Lexeme);
+            while (!Test(Tag.LINE_END))
+            {
+                result = look as Word;
+                final += result.Lexeme;
+                move();
+            }
+            return new UISText(final);
         }
 
         /// <summary>
