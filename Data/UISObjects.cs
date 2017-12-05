@@ -13,7 +13,10 @@ namespace UISEditor.Data
         static PropertyConstraint()
         {
             AddPropertyConstraint(Property.TEX, typeof(UISFileName));
-
+            for (int i = 39; i < 48; i++)
+            {
+                AddPropertyConstraint((Property)i, typeof(UISFileName));
+            }
             AddPropertyConstraint(Property.FRAME, typeof(UISFrameFile));
             for (int i = 19; i < 38; i++)
             {
@@ -122,7 +125,8 @@ namespace UISEditor.Data
 
         FRAME2, FRAME3, FRAME4, FRAME5, FRAME6, FRAME7, FRAME8, FRAME9,
         FRAME10, FRAME11, FRAME12, FRAME13, FRAME14, FRAME15, FRAME16, FRAME17, FRAME18, FRAME19, FRAME20,
-        TYPE2
+        TYPE2, TEX2, TEX3, TEX4, TEX5, TEX6, TEX7, TEX8, TEX9, TEX10,
+        RECT, RECT2, RECT3, RECT4, RECT5, RECT6, RECT7, RECT8, RECT9, RECT10
     }
 
     public enum ValueType
@@ -139,6 +143,7 @@ namespace UISEditor.Data
         ANIMATE_PROP, CURVE,
         ANIMATE_REPEAT, ANIMATE_TRANS,
         MOTION,
+        RECT
     }
 
     public enum AnimationName
@@ -206,10 +211,28 @@ namespace UISEditor.Data
         public override string ObjectTreeName() => CombineValue();
     }
 
+    public class UISRect : UISLiteralValue
+    {
+        public UISLiteralValue Width { get; set; }
+        public UISLiteralValue Height { get; set; }
+        public UISLiteralValue X { get; set; }
+        public UISLiteralValue Y { get; set; }
+        public UISRect(UISLiteralValue w, UISLiteralValue h, UISLiteralValue x, UISLiteralValue y) : base(ValueType.CURVE)
+        {
+            Width = w; Height = h; X = x; Y = y;
+        }
+         
+        public override string CombineValue()
+        {
+            return $"{Width.CombineValue()}, {Height.CombineValue()}, {X.CombineValue()}, {Y.CombineValue()}";
+        }
+        public override string ObjectTreeName() => CombineValue();
+    }
+
     public class UISCurve : UISLiteralValue
     {
         public List<UISNumber> Points { get; private set; }
-        public UISCurve(IEnumerable<UISNumber> points) : base(ValueType.CURVE)
+        public UISCurve(IEnumerable<UISNumber> points) : base(ValueType.RECT)
         {
             Points = new List<UISNumber>(points);
         }

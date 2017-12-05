@@ -29,6 +29,10 @@ namespace UISEditor.Data.Parser
         private static void InitConstraint()
         {
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.TEX, filename);
+            for (int i = 39; i < 48; i++)
+            {
+                PropertyConstraint.AddPropertyConstraint<Func<UISValue>>((Property)i, filename);
+            }
 
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.FRAME, framefile);
             for (int i = 19; i < 38; i++)
@@ -77,6 +81,11 @@ namespace UISEditor.Data.Parser
 
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.SHOW, nul);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.HIDE, nul);
+
+            for (int i = 48; i < 58; i++)
+            {
+                PropertyConstraint.AddPropertyConstraint<Func<UISRect>>((Property)i, rect);
+            }
 
             PropertyConstraint.AddPropertyConstraint("m", "move");
             PropertyConstraint.AddPropertyConstraint("s", "scale");
