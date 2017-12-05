@@ -19,6 +19,7 @@ namespace UISEditor.Data.Lexical
 
         public Reader Reader { get; private set; }
         public LinkedList<Token> TokenList { get; private set; } = new LinkedList<Token>();
+        private bool invalue = false;
 
         public UISLoader(string uiscode)
         {
@@ -33,7 +34,7 @@ namespace UISEditor.Data.Lexical
             {
                 peek = Reader.ReadChar();
                 if (!Reader.EOF()) return new Token(Tag.FLAG_END, Reader.CurrentLineNumber);
-                if (peek == ' ')
+                if (peek == ' ' && !invalue)
                 {
                     int count = 1;
                     do
@@ -56,6 +57,7 @@ namespace UISEditor.Data.Lexical
                         peek = Reader.ReadChar();
                     } while (peek == '\n' && Reader.EOF());
                     Reader.Back();
+                    invalue = false;
                     return new EndOfLine(Reader.CurrentLineNumber);
                 }
                 else break;
@@ -68,7 +70,7 @@ namespace UISEditor.Data.Lexical
                 {
                     val += peek;
                     peek = Reader.ReadChar();
-                } while (char.IsLetterOrDigit(peek));
+                } while (char.IsLetterOrDigit(peek) || (invalue && peek == ' '));
                 Reader.Back();
                 return new Word(Tag.IDENTITY, val, Reader.CurrentLineNumber);
             }
@@ -179,6 +181,7 @@ namespace UISEditor.Data.Lexical
 
             if (peek == '=')
             {
+                invalue = true;
                 return new Equal(Reader.CurrentLineNumber);
             }
 
