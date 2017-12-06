@@ -40,10 +40,10 @@ namespace UISEditor.Data.Parser
             }
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.COLOR, hexcolor);
 
-            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.SIZE, vector);
-            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.POS, vector);
-            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.SIZE2, vector);
-            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.POS2, vector);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.SIZE, relativeVector);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.POS, relativeVector);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.SIZE2, relativeVector);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.POS2, relativeVector);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.PART, vector);
 
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.ANCHOR, term);
@@ -64,17 +64,16 @@ namespace UISEditor.Data.Parser
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.SIZE, vector);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.SKEW, vector);
 
-
-            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.WIDTH, value);
-            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.HEIGHT, value);
-            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.MOVEX, value);
-            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.MOVEY, value);
-            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.SCALEX, value);
-            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.SCALEY, value);
-            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.SKEWX, value);
-            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.SKEWY, value);
-            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.ROTATE, value);
-            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.FADE, value);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.WIDTH, term);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.HEIGHT, term);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.MOVEX, term);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.MOVEY, term);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.SCALEX, term);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.SCALEY, term);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.SKEWX, term);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.SKEWY, term);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.ROTATE, term);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.FADE, term);
 
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.TINY, hexcolor);
 
@@ -136,6 +135,18 @@ namespace UISEditor.Data.Parser
         private static bool Test(params Tag[] tags)
         {
             return tags.Contains(look.TokenTag);
+        }
+
+
+        private static bool Test(params char[] tags)
+        {
+            return tags.Contains((char)look.TokenTag);
+        }
+
+        private static bool TestGrammar(params char[] tags)
+        {
+            if (tags.Contains((char)look.TokenTag)) return true;
+            else throw new TokenWrongException(look, (Tag)tags[0]);
         }
 
         private static bool TestGrammar(params Tag[] tags)

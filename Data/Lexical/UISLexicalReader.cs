@@ -12,7 +12,7 @@ namespace UISEditor.Data.Lexical
         int currentPos = 0, currentLine = 0, currentLinePos = 0;
         public Reader(string code)
         {
-            codes = code;
+            codes = '\n' + code;
         }
 
         public int CurrentPosition { get => currentLinePos; }
@@ -34,6 +34,11 @@ namespace UISEditor.Data.Lexical
         public char PeekChar()
         {
             return codes[currentPos];
+        }
+
+        public char LastChar()
+        {
+            return codes[currentPos - 2];
         }
 
         public bool isTerminalSymbol(char ch)

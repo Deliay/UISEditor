@@ -136,10 +136,19 @@ namespace UISEditor.Data.Parser
             UISAnimationElement result = null;
             if (Test(Tag.IDENTITY))
             {
-                Word name = look as Word;
-                ExpectGrammar(Tag.IDENTITY);
-                result = Animation_Table.FirstOrDefault(p => p.ElementName == name.Lexeme);
-                if (result == null) throw new ParseException(name, "Animation not define");
+                UISText ani = word();
+                result = Animation_Table.FirstOrDefault(p => p.ElementName == ani.Text);
+                if (result == null) throw new ParseException(new Word(Tag.IDENTITY, ani.Text, look.Line), "Animation not define");                //读取Delay
+                if (' ' == (int)look.TokenTag)
+                {
+                    move();
+                    Word id = look as Word;
+                    if (id.Lexeme != "delay") throw new ParseException(id, "Only support 'Delay' keyword currently");
+                    ExpectGrammar(Tag.IDENTITY);
+                    ExpectGrammar(Tag.Equal);
+                    TestGrammar(Tag.NUMBER);
+                    return new UISMotion(result, expr() as UISNumber);
+                }
                 return new UISMotion(result);
             }
             else if (ExpectGrammar(Tag.AnimationInline))
@@ -181,17 +190,15 @@ namespace UISEditor.Data.Parser
                 Expect(expectTag);
                 if (Expect(Tag.Index))
                 {
-                    result.IsMultiSelect = true;
                     if (Test(Tag.LeftBar))
                     {
+                        result.IsMultiSelect = true;
                         result.Indexs = indexs();
                     }
                     else
                     {
-                        result.Indexs = new UISList<UISNumber>
-                        {
-                            expr() as UISNumber
-                        };
+                        result.IsMultiSelect = false;
+                        result.ElementName += $"-{word()}";
                     }
                 }
                 Expect(Tag.LINE_END);
@@ -209,6 +216,15 @@ namespace UISEditor.Data.Parser
             {
                 lists.Add(expr() as UISNumber);
             } while (Expect(Tag.Split));
+            //[2.1更新]: 支持_sprite-[1-3]形式的写法以简化多个元素同时定义的场景
+            if (Expect(Tag.Index))
+            {
+                UISNumber end = expr() as UISNumber;
+                lists.AddAll(Enumerable
+                            .Range((int)lists.First().Number, 
+                                   (int)end.Number)
+                            .Select(p => new UISNumber(p)));
+            }
             ExpectGrammar(Tag.RightBar);
             return lists;
         }
@@ -275,6 +291,10 @@ namespace UISEditor.Data.Parser
             {
                 animation_name = PropertyConstraint.GetPropertyConstraint<string>(aniName.Lexeme);
             }
+            else
+            {
+                animation_name = aniName.Lexeme;
+            }
             ExpectGrammar(Tag.IDENTITY);
 
             Func<UISValue> readFunc;
@@ -301,15 +321,10 @@ namespace UISEditor.Data.Parser
                     case "from":
                         ExpectGrammar(Tag.Equal);
                         ani.AddAnimationProperty(new UISAnimationProperty(AnimationType.FORM, readFunc() as UISLiteralValue));
-                        ExpectGrammar(Tag.Split);
-
-                        TestGrammar(Tag.IDENTITY);
-                        kw = look as Word;
-                        if (kw.Lexeme != "to") throw new ParseException(kw, "to");
-
-                        ExpectGrammar(Tag.IDENTITY);
+                        Expect(Tag.Split);
+                        break;
+                    case "to":
                         ExpectGrammar(Tag.Equal);
-
                         ani.AddAnimationProperty(new UISAnimationProperty(AnimationType.TO, readFunc() as UISLiteralValue));
                         Expect(Tag.Split);
                         break;
@@ -400,18 +415,47 @@ namespace UISEditor.Data.Parser
 
         private static UISAnimationTime animationTime()
         {
-            UISNumber start = expr() as UISNumber;
+            UISNumber start;
             if (Test(Tag.LeftPar))
             {
+                Expect(Tag.LeftPar);
+                start = expr() as UISNumber;
                 ExpectGrammar(Tag.Split);
                 if (Test(Tag.Add)) ExpectGrammar(Tag.Add);
                 else return new UISAnimationTime(start, expr() as UISNumber);
 
-                return new UISAnimationTime(start, expr() as UISNumber, true);
+                UISNumber end = expr() as UISNumber;
+                ExpectGrammar(Tag.RightPar);
+
+                return new UISAnimationTime(start, end, true);
             }
             else
             {
+                start = expr() as UISNumber;
                 return new UISAnimationTime(start, new UISNumber(0), false);
+            }
+        }
+
+        private static UISValue relativeVector()
+        {
+            //Relative with some element
+            if(Test(Tag.NUMBER) || Test(Tag.LeftPar))
+            {
+                return vector();
+            }
+            else
+            {
+                string lex = string.Empty;
+                do
+                {
+                    lex += look as Word;
+                    move();
+                } while (!Test(' '));
+                ExpectGrammar(' ');
+
+                UISVector vec = vector();
+                UISRelativeVector result = new UISRelativeVector(vec.First, vec.Second, lex, vec.IncludeByPar);
+                return result;
             }
         }
 
@@ -450,24 +494,24 @@ namespace UISEditor.Data.Parser
         /// <returns></returns>
         private static UISLiteralValue term()
         {
-            UISLiteralValue expr1, expr2;
-
+            UISLiteralValue expr1;
             expr1 = expr();
-            if (Expect(Tag.Add))
+            switch (look.TokenTag)
             {
-                expr2 = expr();
-                return new UISSimpleExpr(expr1, expr2);
+                case Tag.Add:
+                    ExpectGrammar(Tag.Add);
+                    return new UISSimpleExpr(expr1, term());
+                case Tag.Index:
+                    ExpectGrammar(Tag.Index);
+                    return new UISSimpleExpr(expr1, term(), false);
+                default:
+                    return expr1;
             }
-            else if (Expect(Tag.Index))
-            {
-                expr2 = expr();
-                return new UISSimpleExpr(expr1, expr2, false);
-            }
-            else
-            {
-                return expr1;
-            }
+        }
 
+        private static UISLiteralValue expr()
+        {
+            return expr(false);
         }
 
         /// <summary>
@@ -563,6 +607,7 @@ namespace UISEditor.Data.Parser
             while (!Test(Tag.LINE_END))
             {
                 result = look as Word;
+                if (result == null) break;
                 final += result.Lexeme;
                 move();
             }

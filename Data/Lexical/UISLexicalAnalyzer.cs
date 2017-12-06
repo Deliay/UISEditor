@@ -55,10 +55,14 @@ namespace UISEditor.Data.Lexical
                     do
                     {
                         peek = Reader.ReadChar();
-                    } while (peek == '\n' && Reader.EOF());
+                    } while ((peek == '\n') && Reader.EOF());
                     Reader.Back();
                     invalue = false;
                     return new EndOfLine(Reader.CurrentLineNumber);
+                }
+                else if (peek == '#' && Reader.LastChar() == '\n')
+                {
+                    return new Comment(Reader.CurrentLineNumber, Reader.ReadLine());
                 }
                 else break;
             }
@@ -77,14 +81,14 @@ namespace UISEditor.Data.Lexical
 
             if (peek == '#')
             {
-                string val = string.Empty;
-                do
-                {
-                    peek = Reader.ReadChar();
-                    val += peek;
-                } while (peek != '\n' && Reader.EOF());
-                Reader.Back();
-                return new Comment(Reader.CurrentLineNumber, val);
+                string val = "" + peek;
+                val += Reader.ReadChar();
+                val += Reader.ReadChar();
+                val += Reader.ReadChar();
+                val += Reader.ReadChar();
+                val += Reader.ReadChar();
+                val += Reader.ReadChar();
+                return new HexString(val, Reader.CurrentLineNumber);
             }
 
             if (char.IsDigit(peek))

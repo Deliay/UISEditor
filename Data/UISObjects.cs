@@ -355,9 +355,16 @@ namespace UISEditor.Data
     public class UISMotion : UISValue
     {
         public UISAnimationElement TargetAnimation { get; set; }
+        public UISNumber Delay { get; set; }
         public UISMotion(UISAnimationElement element) : base(ValueType.MOTION)
         {
             this.TargetAnimation = element;
+        }
+
+        public UISMotion(UISAnimationElement element, UISNumber delay) : base(ValueType.MOTION)
+        {
+            this.TargetAnimation = element;
+            this.Delay = delay;
         }
 
         public override string CombineValue()
@@ -386,7 +393,16 @@ namespace UISEditor.Data
         public override string CombineValue() =>  $"#{Red.ToString("{0:X}")}{Green.ToString("{0:X}")}{Blue.ToString("{0:X}")}";
         public override string ObjectTreeName() => CombineValue();
     }
-    
+
+    public class UISRelativeVector : UISVector
+    {
+        public string Relative { get; set; }
+        public UISRelativeVector(UISLiteralValue first, UISLiteralValue second, string relative, bool havePar) : base(first, second, havePar)
+        {
+            this.Relative = relative;
+        }
+    }
+
     public class UISVector : UISValue
     {
         public UISLiteralValue First { get; set; }
