@@ -20,6 +20,7 @@ namespace UISEditor.View
 
         public IEnumerator<UISObject> GetEnumerator() => uisOriginTree.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => uisOriginTree.GetEnumerator();
+        public IReadOnlyCollection<UISError> GetErrors() => uisOriginTree.ScriptErrors;
 
         UISInstance uisOriginTree;
 
@@ -27,6 +28,7 @@ namespace UISEditor.View
         {
             UISParser.ReadFile(FilePath);
             uisOriginTree = UISParser.ParseInstance();
+
         }
 
     }

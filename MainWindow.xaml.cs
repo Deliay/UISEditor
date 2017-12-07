@@ -29,7 +29,7 @@ namespace UISEditor
 
         private void OpenFile(object sender, RoutedEventArgs e)
         {
-            MainController.CreateUISObjectTreeByFile();
+            MainController.TestOpenfile();
         }
 
         private void LoadComplete(object sender, RoutedEventArgs e)

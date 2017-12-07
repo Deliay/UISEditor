@@ -10,6 +10,14 @@ namespace UISEditor.Data
     public class UISInstance : IEnumerable<UISObject>
     {
         LinkedList<UISObject> ObjectTree = new LinkedList<UISObject>();
+        LinkedList<UISError> Errors = new LinkedList<UISError>();
+
+        public IReadOnlyCollection<UISError> ScriptErrors { get => Errors; }
+
+        public void AddError(UISError e)
+        {
+            Errors.AddLast(e);
+        }
 
         public T FindObject<T>(Func<UISObject, bool> selector) where T : UISObject
         {
