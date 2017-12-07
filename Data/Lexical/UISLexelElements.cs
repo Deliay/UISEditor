@@ -10,6 +10,7 @@ namespace UISEditor.Data.Lexical
     {
         START_FLAG = 0,
         LINE_END = '\n',
+        SPACE = ' ',
         Split = ',',
         Equal = '=',
         AtProp = '@',
@@ -203,6 +204,13 @@ namespace UISEditor.Data.Lexical
         public RealNumber(double value, int line) : base(Tag.REAL, value.ToString(), line)
         {
             Value = value;
+        }
+    }
+
+    public class Space : Word
+    {
+        public Space(int line) : base(Tag.SPACE, " ", line)
+        {
         }
     }
 
