@@ -12,7 +12,7 @@ namespace UISEditor.Data.Lexical
         int currentPos = 0, currentLine = 0, currentLinePos = 0;
         public Reader(string code)
         {
-            codes = '\n' + code;
+            codes = '\n' + code + '\n';
         }
 
         public int CurrentPosition { get => currentLinePos; }
