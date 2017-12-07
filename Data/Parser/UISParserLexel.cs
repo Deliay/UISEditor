@@ -375,11 +375,20 @@ namespace UISEditor.Data.Parser
             return ani;
         }
 
+        /// <summary>
+        /// Read value by constrainted <see cref="Func{UISValue}"/>
+        /// </summary>
+        /// <returns></returns>
         private static UISValue value()
         {
             return PropertyConstraint.GetPropertyConstraint<Func<UISValue>>(CURRENT_PROPERTY)();
         }
 
+        /// <summary>
+        /// <para>Read a curve e.g: (a, b, c, .... n)</para>
+        /// <see cref="readCurve"/> -> (<see cref="expr(bool)"/>....) -> <see cref="UISCurve"/>
+        /// </summary>
+        /// <returns></returns>
         private static UISCurve readCurve()
         {
             //perfab curve
@@ -409,6 +418,11 @@ namespace UISEditor.Data.Parser
             return new UISCurve(lists);
         }
 
+        /// <summary>
+        /// <para>Read animation repeat like (rA), (A, rB)</para>
+        /// <see cref="animationRepeat"/> -> <see cref="UISAnimationRepeat"/>
+        /// </summary>
+        /// <returns></returns>
         private static UISAnimationRepeat animationRepeat()
         {
             bool isLoop = false;
@@ -470,6 +484,11 @@ namespace UISEditor.Data.Parser
             }
         }
 
+        /// <summary>
+        /// <para>Read a Relatived POS/SIZE vector</para>
+        ///<see cref="UISRelativeVector"/> -> <see cref="word(Type)"/> <see cref="Space"/> <see cref="vector"/>
+        /// </summary>
+        /// <returns></returns>
         private static UISValue relativeVector()
         {
             //Relative with some element
@@ -488,6 +507,7 @@ namespace UISEditor.Data.Parser
         }
 
         /// <summary>
+        /// <para>Read a Vector like (a, b) or a, b</para>
         /// <see cref="vector"/> -> (<see cref="term"/> , <see cref="term"/>)
         /// </summary>
         /// <returns></returns>
@@ -504,6 +524,7 @@ namespace UISEditor.Data.Parser
         }
 
         /// <summary>
+        /// <para>Read a Hex 6 length color like #RRGGBB</para>
         /// <see cref="hexcolor"/> -> <see cref="UISHexColor"/>
         /// <para>color=#ef6666</para>
         /// </summary>
@@ -537,12 +558,8 @@ namespace UISEditor.Data.Parser
             }
         }
 
-        private static UISLiteralValue expr()
-        {
-            return expr(false);
-        }
-
         /// <summary>
+        /// <para>Read a px, % or a literal real/integer</para>
         /// <see cref="expr"/> -> <see cref="UISNumber"/> | <see cref="UISPixel"/> | <see cref="UISPercent"/>
         /// <para>number -> number%</para>
         /// <para>px -> number"px"</para>
@@ -593,6 +610,13 @@ namespace UISEditor.Data.Parser
 
         }
 
+        /// <summary>
+        /// <para>Read a $ increase value</para>
+        /// <see cref="expr(bool)"/> -> <see cref="increase"/> -> <see cref="UISLiteralValue"/>
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="pass"></param>
+        /// <returns></returns>
         private static UISLiteralValue increase(UISLiteralValue src, bool pass = false)
         {
             if (pass) return src;
@@ -605,6 +629,7 @@ namespace UISEditor.Data.Parser
         }
 
         /// <summary>
+        /// <para>Read a line for single filename</para>
         /// <see cref="filename"/> -> string.string
         /// <para>tex=my.png</para>
         /// </summary>
@@ -624,13 +649,18 @@ namespace UISEditor.Data.Parser
             return new UISFileName(id1);
         }
 
+        /// <summary>
+        /// A wrapper for <see cref="word(Type)"/>
+        /// </summary>
+        /// <returns></returns>
         private static UISText word()
         {
             return word(null);
         }
 
         /// <summary>
-        /// Read a string[]
+        /// <para>Read a string[]</para>
+        /// <see cref="word(Type)"/> -> <see cref="UISText"/>
         /// </summary>
         /// <returns></returns>
         private static UISText word(Type terminal = null)
@@ -650,7 +680,7 @@ namespace UISEditor.Data.Parser
 
         /// <summary>
         /// framefile -> string / number - number
-        /// frame=light/0-4
+        /// <para>frame=light/0-4</para>
         /// </summary>
         /// <returns>Return initialized <see cref="UISFrameFile"/> instance.</returns>
         private static UISFrameFile framefile()
@@ -684,6 +714,11 @@ namespace UISEditor.Data.Parser
             return new UISFrameFile(id, n1.Value, n2.Value);
         }
 
+        /// <summary>
+        /// <para>Read a rectangle h,w,x,y</para>
+        /// <para><see cref="rect"/> -> <see cref="UISRect"/></para>
+        /// </summary>
+        /// <returns></returns>
         private static UISRect rect()
         {
             UISLiteralValue h = expr();

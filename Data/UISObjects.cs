@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using UISEditor.Data.Lexical;
 
 namespace UISEditor.Data
@@ -134,6 +135,8 @@ namespace UISEditor.Data
         ACTION1, ACTION2, 
 
         UNSUPPOORT, PADDING, HOVER, LEAVE, SHOW,
+        [UISDeprecated]
+        TIP,
     }
 
     public enum ValueType
@@ -178,7 +181,7 @@ namespace UISEditor.Data
 
     public class UISPixel : UISLiteralValue
     {
-        public double Pixel { get; private set; }
+        public double Pixel { get; set; }
         public UISPixel(double px) : base(ValueType.PX)
         {
             Pixel = px;
@@ -194,7 +197,7 @@ namespace UISEditor.Data
 
     public class UISPercent : UISLiteralValue
     {
-        public double Percent { get; private set; }
+        public double Percent { get; set; }
         public UISPercent(double percent ) : base(ValueType.PERCENT)
         {
             Percent = percent;
@@ -244,7 +247,7 @@ namespace UISEditor.Data
 
     public class UISCurve : UISLiteralValue
     {
-        public List<UISNumber> Points { get; private set; }
+        public List<UISNumber> Points { get; set; }
         public bool IsPerfabCurve { get; set; }
         public PerfabCurve Perfab { get; set; }
         public UISCurve(IEnumerable<UISNumber> points) : base(ValueType.CURVE)
@@ -277,7 +280,7 @@ namespace UISEditor.Data
 
     public class UISText : UISLiteralValue
     {
-        public string Text { get; private set; }
+        public string Text { get; set; }
         public UISText(string text) : base(ValueType.TEXT)
         {
             Text = text;
@@ -411,6 +414,8 @@ namespace UISEditor.Data
         public byte Red { get; set; }
         public byte Blue { get; set; }
         public byte Green { get; set; }
+
+        public Color MixedColor { get; set; }
         
         public UISHexColor(string value) : base(ValueType.HEX_COLOR) => FormString(value);
 
@@ -419,6 +424,8 @@ namespace UISEditor.Data
             Red = byte.Parse(value.Substring(1, 2), System.Globalization.NumberStyles.AllowHexSpecifier);
             Green = byte.Parse(value.Substring(3, 2), System.Globalization.NumberStyles.AllowHexSpecifier);
             Blue = byte.Parse(value.Substring(5, 2), System.Globalization.NumberStyles.AllowHexSpecifier);
+
+            MixedColor = Color.FromRgb(Red, Green, Blue);
         }
 
         public override string CombineValue() =>  $"#{Red.ToString("{0:X}")}{Green.ToString("{0:X}")}{Blue.ToString("{0:X}")}";
@@ -458,9 +465,9 @@ namespace UISEditor.Data
     
     public class UISFrameFile : UISValue
     {
-        public int StartFrame { get; private set; }
-        public int EndFrame { get; private set; }
-        public string FileName { get; private set; }
+        public int StartFrame { get; set; }
+        public int EndFrame { get; set; }
+        public string FileName { get; set; }
         public UISFrameFile(string filename, int start, int end) : base(ValueType.FRAMEFILE)
         {
             FileName = filename;
@@ -477,7 +484,7 @@ namespace UISEditor.Data
     
     public class UISFileName : UISValue
     {
-        public string FileName { get; private set; }
+        public string FileName { get; set; }
         public UISFileName(string fileName) : base(ValueType.FILENAME)
         {
             FileName = fileName;
@@ -497,8 +504,8 @@ namespace UISEditor.Data
     /// </summary>
     public class UISAnimationProperty : UISValue
     {
-        public AnimationType AnimationType { get; private set; }
-        public UISLiteralValue Value { get; private set; }
+        public AnimationType AnimationType { get; set; }
+        public UISLiteralValue Value { get; set; }
         public UISAnimationProperty(AnimationType prop, UISLiteralValue value) : base(ValueType.ANIMATE_PROP)
         {
             AnimationType = prop;
@@ -514,10 +521,10 @@ namespace UISEditor.Data
 
     public abstract class UISValue : UISObject
     {
-        public ValueType ValueType { get; private set; }
+        public ValueType ValueType { get; set; }
         public UISValue(ValueType type) : base(ObjectTag.VALUE)
         {
-
+            this.ValueType = type;
         }
         public override string ObjectTreeName() => CombineValue();
     }
@@ -529,7 +536,7 @@ namespace UISEditor.Data
     public class UISAnimation : UISObject, IEnumerable<UISAnimationProperty>
     {
         public AnimationName Name { get; set; }
-        public UISList<UISAnimationProperty> AnimationProperties { get; private set; } = new UISList<UISAnimationProperty>();
+        public UISList<UISAnimationProperty> AnimationProperties { get; set; } = new UISList<UISAnimationProperty>();
         public UISAnimation(AnimationName name) : base(ObjectTag.ANI_PROP_DEF)
         {
             this.Name = name;
@@ -557,8 +564,8 @@ namespace UISEditor.Data
     /// </summary>
     public class UISProperty : UISObject
     {
-        public Property Property { get; private set; }
-        public UISValue Value { get; private set; }
+        public Property Property { get; set; }
+        public UISValue Value { get; set; }
         public UISProperty(Property t, UISValue value) : base(ObjectTag.PROP)
         {
             this.Value = value;
@@ -639,7 +646,7 @@ namespace UISEditor.Data
     /// A generic collection for top-level element
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class UISElement<T> : UISObject, IEnumerable<T> where T : UISObject
+    public abstract class UISElement<T> : UISObject, ICollection<T> where T : UISObject
     {
 
         public ObjectTag ObjectType { get; set; }
@@ -650,7 +657,7 @@ namespace UISEditor.Data
         /// <summary>
         /// Generic element properties
         /// </summary>
-        public UISList<T> Properties { get; private set; } = new UISList<T>();
+        public UISList<T> Properties { get; set; } = new UISList<T>();
         /// <summary>
         /// Tag this element is a multi-select element
         /// </summary>
@@ -659,6 +666,10 @@ namespace UISEditor.Data
         /// Selected indexs
         /// </summary>
         public UISList<UISNumber> Indexs { get; set; }
+
+        public int Count => Properties.Count;
+
+        public bool IsReadOnly => false;
 
         /// <summary>
         /// Base element ctor
@@ -715,6 +726,16 @@ namespace UISEditor.Data
         public IEnumerator<T> GetEnumerator() => Properties.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => Properties.GetEnumerator();
+
+        public void Add(T item) => AddProperty(item);
+
+        public void Clear() => Properties = new UISList<T>();
+
+        public bool Contains(T item) => Properties.Contains(item);
+
+        public void CopyTo(T[] array, int arrayIndex) => Properties.CopyTo(array, arrayIndex);
+
+        public bool Remove(T item) => Properties.Remove(item);
     }
 
     //start with @
@@ -778,7 +799,7 @@ namespace UISEditor.Data
         public override string CombineValue() => $"+{GroupName}\n{base.CombineValue()}";
     }
 
-    public class UISList<T> : UISObject, IEnumerable<T>, IReadOnlyCollection<T> where T : UISObject
+    public class UISList<T> : UISObject, ICollection<T>, IReadOnlyCollection<T> where T : UISObject
     {
         LinkedList<T> list = new LinkedList<T>();
 
@@ -804,6 +825,8 @@ namespace UISEditor.Data
 
         public int Count => List.Count;
 
+        public bool IsReadOnly => false;
+
         public override string CombineValue() => string.Join("\n", this.Select(p => p.CombineValue()));
 
         public IEnumerator<T> GetEnumerator() => List.GetEnumerator();
@@ -811,6 +834,14 @@ namespace UISEditor.Data
         IEnumerator IEnumerable.GetEnumerator() => List.GetEnumerator();
 
         public override string ObjectTreeName() => $"List[{typeof(T).Name}]";
+
+        public void Clear() => list.Clear();
+
+        public bool Contains(T item) => list.Contains(item);
+
+        public void CopyTo(T[] array, int arrayIndex) => list.CopyTo(array, arrayIndex);
+
+        public bool Remove(T item) => list.Remove(item);
     }
 
     /// <summary>
@@ -818,7 +849,7 @@ namespace UISEditor.Data
     /// </summary>
     public abstract class UISObject
     {
-        public ObjectTag TokenTag { get; private set; }
+        internal ObjectTag TokenTag { get; private set; }
         public abstract string ObjectTreeName();
         public UISObject(ObjectTag tokenTag)
         {

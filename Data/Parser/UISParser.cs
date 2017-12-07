@@ -67,6 +67,7 @@ namespace UISEditor.Data.Parser
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.ETAG, term);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.LANG, word);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.UNSUPPOORT, word);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.TIP, word);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.SHOW, term);
 
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.MOVE, vector);
