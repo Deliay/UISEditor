@@ -40,12 +40,33 @@
         </DockPanel>
         <GridSplitter Width="3"/>
         <DockPanel Grid.Column="1">
-            <avalonEdit:TextEditor
-                xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
-                Name="textEditor"
-                FontFamily="Consolas"
-                SyntaxHighlighting="C#"
-                FontSize="10pt"/>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="3*"></RowDefinition>
+                    <RowDefinition Height="2px"></RowDefinition>
+                    <RowDefinition Height="1*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <DockPanel Grid.Row="0">
+                    <avalonEdit:TextEditor
+                    xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+                    Name="textEditor"
+                    FontFamily="Consolas"
+                    SyntaxHighlighting="C#"
+                    FontSize="10pt"/>
+                </DockPanel>
+                <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch"/>
+                <DockPanel Grid.Row="2">
+                    <ListView x:Name="tvErrors">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn DisplayMemberBinding="{Binding Line}" Header="Line"></GridViewColumn>
+                                <GridViewColumn DisplayMemberBinding="{Binding Error}" Header="Error"></GridViewColumn>
+                                <GridViewColumn DisplayMemberBinding="{Binding Value}" Header="Value"></GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </DockPanel>
+            </Grid>
         </DockPanel>
 
     </Grid>

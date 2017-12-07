@@ -35,15 +35,7 @@ namespace UISEditor
         {
             if(e.LeftButton == MouseButtonState.Pressed)
             {
-                if(!MainController.CreateUISObjectTreeByFile())
-                {
-                    MainController.ToIndex();
-                }
-                else
-                {
-                    MainController.ToEdit();
-                }
-
+                MainController.TestOpenfile();
             }
         }
     }

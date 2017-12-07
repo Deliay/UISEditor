@@ -29,8 +29,10 @@ namespace UISEditor.View
 
         public void onSwitch()
         {
+            tvUISTree.Items.Clear();
             tvUISTree.Items.Add(PutListToTreeView(new TreeViewItem() { Header = "root" }, UISObjectTree.Instance));
             if (tvUISTree.Items.Count >= 2) tvUISTree.Items.RemoveAt(1);
+            PutErrorListToTreeView(new TreeViewItem() { Header = "errors" }, UISObjectTree.Instance.GetErrors());
             textEditor.Text = string.Join("", UISObjectTree.Instance.Select(p => p.CombineValue()));
         }
 
@@ -51,6 +53,22 @@ namespace UISEditor.View
         {
             public string Name { get; set; }
             public object Value { get; set; }
+        }
+
+        public class ErrorWrapper
+        {
+            public int Line { get; set; }
+            public string Error { get; set; }
+            public string Value { get; set; }
+        }
+
+        public void PutErrorListToTreeView(TreeViewItem parent, IEnumerable<UISError> list)
+        {
+            tvErrors.Items.Clear();
+            foreach (var item in list)
+            {
+                tvErrors.Items.Add(new ErrorWrapper() { Line = item.ErrorLine , Error = item.InnerException.GetType().ToString(),  Value = item.InnerException.Message });
+            }
         }
 
         public TreeViewItem PutListToTreeView(TreeViewItem parent, IEnumerable<UISObject> list)

@@ -27,7 +27,7 @@ namespace UISEditor.Controller
         {
             mainInstance = main;
         }
-
+        
         public static void ToIndex()
         {
             NavgationTo("View/IndexNavgation.xaml");
@@ -40,6 +40,7 @@ namespace UISEditor.Controller
 
         public static void NavgationTo(string Uri)
         {
+
             Instance.mainInstance.Navgation.Source = new Uri(Uri, UriKind.Relative);
             Instance.mainInstance.Navgation.ContentRendered += (sender, evt) =>
             {
@@ -49,6 +50,22 @@ namespace UISEditor.Controller
                 }
             };
 
+        }
+
+        public static void TestOpenfile()
+        {
+            if (!MainController.CreateUISObjectTreeByFile())
+            {
+                MainController.ToIndex();
+            }
+            else
+            {
+                MainController.ToEdit();
+                if (Instance.mainInstance.Navgation.Content is IViewSwitch s)
+                {
+                    s.onSwitch();
+                }
+            }
         }
 
         public static bool CreateUISObjectTreeByFile()
