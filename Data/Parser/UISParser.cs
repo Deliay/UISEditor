@@ -57,7 +57,17 @@ namespace UISEditor.Data.Parser
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.TYPE2, term);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.INTERVAL, term);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.MOTION, motion);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.ACTION1, motion);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.ACTION2, motion);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.HOVER, motion);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.LEAVE, motion);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.TEXT, word);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.PARENT, word);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.TAG, term);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.ETAG, term);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.LANG, word);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.UNSUPPOORT, word);
+            PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(Property.SHOW, term);
 
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.MOVE, vector);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.SCALE, vector);
@@ -84,6 +94,7 @@ namespace UISEditor.Data.Parser
             {
                 PropertyConstraint.AddPropertyConstraint<Func<UISRect>>((Property)i, rect);
             }
+            PropertyConstraint.AddPropertyConstraint<Func<UISRect>>(Property.PADDING, rect);
 
             PropertyConstraint.AddPropertyConstraint("m", "move");
             PropertyConstraint.AddPropertyConstraint("s", "scale");
@@ -205,6 +216,12 @@ namespace UISEditor.Data.Parser
             {
                 throw new TokenWrongException(look, (Tag)tags[0]);
             }
+        }
+
+        private static UISNull ThrowError(UISRuntimeException e)
+        {
+            instance.AddError(new UISError(e, Reader.RealLine));
+            return nul();
         }
 
         public static UISInstance ParseInstance()

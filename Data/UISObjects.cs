@@ -107,6 +107,8 @@ namespace UISEditor.Data
         SCORE_COMBO, SCORE_SCORE, SCORE_ACC, SCORE_HP,
         BGA, TOUCH, PROGRESS, HP, MUSICBAR,
         HIT_FAST, HIT_SLOW, PAUSE,
+
+        ICON, DEFTEXT, MODE, SHADOW, TITLE, TRI, SIGN,
     }
 
     public enum FunctionElementType
@@ -126,7 +128,12 @@ namespace UISEditor.Data
         FRAME2, FRAME3, FRAME4, FRAME5, FRAME6, FRAME7, FRAME8, FRAME9,
         FRAME10, FRAME11, FRAME12, FRAME13, FRAME14, FRAME15, FRAME16, FRAME17, FRAME18, FRAME19, FRAME20,
         TYPE2, TEX2, TEX3, TEX4, TEX5, TEX6, TEX7, TEX8, TEX9, TEX10,
-        RECT, RECT2, RECT3, RECT4, RECT5, RECT6, RECT7, RECT8, RECT9, RECT10
+        RECT, RECT2, RECT3, RECT4, RECT5, RECT6, RECT7, RECT8, RECT9, RECT10,
+        PARENT, TAG, ETAG, LANG,
+
+        ACTION1, ACTION2, 
+
+        UNSUPPOORT, PADDING, HOVER, LEAVE, SHOW,
     }
 
     public enum ValueType
@@ -161,6 +168,12 @@ namespace UISEditor.Data
         TIME, ATIME,
         TRANS,
         REPEAT,
+    }
+
+    public enum PerfabCurve
+    {
+        EASEIN,
+        EASEOUT,
     }
 
     public class UISPixel : UISLiteralValue
@@ -217,7 +230,7 @@ namespace UISEditor.Data
         public UISLiteralValue Height { get; set; }
         public UISLiteralValue X { get; set; }
         public UISLiteralValue Y { get; set; }
-        public UISRect(UISLiteralValue w, UISLiteralValue h, UISLiteralValue x, UISLiteralValue y) : base(ValueType.CURVE)
+        public UISRect(UISLiteralValue w, UISLiteralValue h, UISLiteralValue x, UISLiteralValue y) : base(ValueType.RECT)
         {
             Width = w; Height = h; X = x; Y = y;
         }
@@ -232,9 +245,27 @@ namespace UISEditor.Data
     public class UISCurve : UISLiteralValue
     {
         public List<UISNumber> Points { get; private set; }
-        public UISCurve(IEnumerable<UISNumber> points) : base(ValueType.RECT)
+        public bool IsPerfabCurve { get; set; }
+        public PerfabCurve Perfab { get; set; }
+        public UISCurve(IEnumerable<UISNumber> points) : base(ValueType.CURVE)
         {
             Points = new List<UISNumber>(points);
+        }
+
+        public UISCurve(PerfabCurve perfab) : base(ValueType.CURVE)
+        {
+            this.Perfab = perfab;
+            IsPerfabCurve = true;
+
+            switch (Perfab)
+            {
+                case PerfabCurve.EASEIN:
+                    Points = new List<UISNumber>() { };
+                    break;
+                case PerfabCurve.EASEOUT:
+                    Points = new List<UISNumber>() { };
+                    break;
+            }
         }
 
         public override string CombineValue()
@@ -732,6 +763,19 @@ namespace UISEditor.Data
         {
             return string.Empty;
         }
+    }
+
+    public class UISGroup : UISList<UISObject>
+    {
+        public UISText GroupName { get; set; }
+        public UISGroup(UISText name)
+        {
+            this.GroupName = name;
+        }
+
+        public override string ObjectTreeName() => $"+{GroupName}";
+
+        public override string CombineValue() => $"+{GroupName}\n{base.CombineValue()}";
     }
 
     public class UISList<T> : UISObject, IEnumerable<T>, IReadOnlyCollection<T> where T : UISObject
