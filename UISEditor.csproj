@@ -61,6 +61,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Controller\MainController.cs" />
+    <Compile Include="Data\UISRuntimeException.cs" />
     <Compile Include="View\FileEditor.xaml.cs">
       <DependentUpon>FileEditor.xaml</DependentUpon>
     </Compile>
