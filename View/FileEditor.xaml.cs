@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ICSharpCode.AvalonEdit.Highlighting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,8 @@ namespace UISEditor.View
     /// </summary>
     public partial class FileEditor : Page, IViewSwitch
     {
+        public static ICSharpCode.AvalonEdit.TextEditor Editor = null;
+
         public FileEditor()
         {
             InitializeComponent();
@@ -30,10 +33,11 @@ namespace UISEditor.View
         public void onSwitch()
         {
             tvUISTree.Items.Clear();
-            tvUISTree.Items.Add(PutListToTreeView(new TreeViewItem() { Header = "root" }, UISObjectTree.Instance));
+            tvUISTree.Items.Add(PutListToTreeView(new TreeViewItem() { Header = UISObjectTree.Instance.FileName }, UISObjectTree.Instance));
             if (tvUISTree.Items.Count >= 2) tvUISTree.Items.RemoveAt(1);
-            PutErrorListToTreeView(new TreeViewItem() { Header = "errors" }, UISObjectTree.Instance.GetErrors());
+            PutErrorListToTreeView(UISObjectTree.Instance.GetErrors());
             textEditor.Text = string.Join("", UISObjectTree.Instance.Select(p => p.CombineValue()));
+            Editor = this.textEditor;
         }
 
         public class ItemWrapper
@@ -62,7 +66,7 @@ namespace UISEditor.View
             public string Value { get; set; }
         }
 
-        public void PutErrorListToTreeView(TreeViewItem parent, IEnumerable<UISError> list)
+        public void PutErrorListToTreeView(IEnumerable<UISError> list)
         {
             tvErrors.Items.Clear();
             foreach (var item in list)
@@ -94,7 +98,6 @@ namespace UISEditor.View
 
         public void LoadProperty(object sender)
         {
-            tvElementProperty.Items.Clear();
             ItemWrapper wrapper = (sender as ItemWrapper);
             if (wrapper == null)
             {
@@ -104,15 +107,24 @@ namespace UISEditor.View
             {
                 return;
             }
-                UISObject target = wrapper.Item;
-            Type t = target.GetType();
-            var list = t.GetProperties();
-            foreach (var item in list)
+            UISObject target = wrapper.Item;
+            if(target is UISProperty prop)
             {
-                object value = item.GetValue(target);
-                if(value != null)
-                    tvElementProperty.Items.Add(new PropertyWrapper { Name = item.Name, Value = value.ToString() });
+                //tvProperty.SelectedObjects = new[] { target , prop.Value};
+                tvProperty.SelectedObject = prop.Value;
             }
+            else
+            {
+                tvProperty.SelectedObject = target;
+            }
+            //Type t = target.GetType();
+            //var list = t.GetProperties();
+            //foreach (var item in list)
+            //{
+            //    object value = item.GetValue(target);
+            //    if(value != null)
+            //        tvElementProperty.Items.Add(new PropertyWrapper { Name = item.Name, Value = value.ToString() });
+            //}
         }
 
         private void ChangeSelection(object sender, RoutedPropertyChangedEventArgs<object> e)

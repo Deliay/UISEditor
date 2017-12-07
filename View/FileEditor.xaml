@@ -3,6 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+	  xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
       xmlns:local="clr-namespace:UISEditor"
       mc:Ignorable="d" 
       d:DesignHeight="300" d:DesignWidth="300"
@@ -10,36 +11,11 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*"></ColumnDefinition>
             <ColumnDefinition Width="6*"></ColumnDefinition>
+            <ColumnDefinition Width="2*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
+
         <DockPanel Grid.Column="0">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="3*"></RowDefinition>
-                    <RowDefinition Height="2px"></RowDefinition>
-                    <RowDefinition Height="1*"></RowDefinition>
-                </Grid.RowDefinitions>
-                <DockPanel Grid.Row="0">
-                    <TreeView x:Name="tvUISTree" SelectedItemChanged="ChangeSelection">
-                    </TreeView>
-                </DockPanel>
-                <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch"/>
-                <DockPanel Grid.Row="2">
-                    <ListView x:Name="tvElementProperty">
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="Name"></GridViewColumn>
-                                <GridViewColumn DisplayMemberBinding="{Binding Value}" Header="Value"></GridViewColumn>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                </DockPanel>
-                
-            </Grid>
-        </DockPanel>
-        <GridSplitter Width="3"/>
-        <DockPanel Grid.Column="1">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="3*"></RowDefinition>
@@ -68,6 +44,34 @@
                 </DockPanel>
             </Grid>
         </DockPanel>
+        <GridSplitter Width="3"/>
+        <DockPanel Grid.Column="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="3*"></RowDefinition>
+                    <RowDefinition Height="2px"></RowDefinition>
+                    <RowDefinition Height="1*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <DockPanel Grid.Row="0">
+                    <TreeView x:Name="tvUISTree" SelectedItemChanged="ChangeSelection">
+                    </TreeView>
+                </DockPanel>
+                <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch"/>
+                <DockPanel Grid.Row="2">
+                    <WindowsFormsHost Name="propertyGridHost">
+                        <forms:PropertyGrid x:Name="tvProperty"/>
+                    </WindowsFormsHost>
+                    <!--<ListView x:Name="tvElementProperty">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="Name"></GridViewColumn>
+                                <GridViewColumn DisplayMemberBinding="{Binding Value}" Header="Value"></GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>-->
+                </DockPanel>
 
+            </Grid>
+        </DockPanel>
     </Grid>
 </Page>
