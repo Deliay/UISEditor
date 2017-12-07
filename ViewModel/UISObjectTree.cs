@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,6 +19,9 @@ namespace UISEditor.View
             ourInstance = new UISObjectTree(FilePath);
         }
 
+        public string FilePath { get; private set; }
+        public string FileName { get => Path.GetFileName(FilePath); }
+
         public IEnumerator<UISObject> GetEnumerator() => uisOriginTree.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => uisOriginTree.GetEnumerator();
         public IReadOnlyCollection<UISError> GetErrors() => uisOriginTree.ScriptErrors;
@@ -26,6 +30,7 @@ namespace UISEditor.View
 
         public UISObjectTree(string FilePath)
         {
+            this.FilePath = FilePath;
             UISParser.ReadFile(FilePath);
             uisOriginTree = UISParser.ParseInstance();
 
