@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<SyntaxDefinition name="Custom Highlighting" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+  	<Color name="Comment" foreground="Green" />
+	  <Color name="String" foreground="Yellow" />
+</SyntaxDefinition>
