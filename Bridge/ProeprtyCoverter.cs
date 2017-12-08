@@ -63,6 +63,28 @@ namespace UISEditor.Bridge
             return instance.Pixel;
         }
     }
+    
+    public class UISPercentConverter : UISValueConverter<UISPixel>
+    {
+        public override bool CanCovertFrom(Type target)
+        {
+            return target == typeof(double);
+        }
+
+        public override UISPixel ConvertFrom(object value)
+        {
+            if (value is double v)
+            {
+                return new UISPixel(v);
+            }
+            else return null;
+        }
+
+        public override object ConvertTo(UISPixel instance, Type target)
+        {
+            return instance.Pixel;
+        }
+    }
 
     public class UISNumberConverter : UISValueConverter<UISNumber>
     {
@@ -85,5 +107,6 @@ namespace UISEditor.Bridge
             return instance.Number;
         }
     }
+
 
 }
