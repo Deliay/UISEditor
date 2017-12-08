@@ -50,7 +50,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="3*"></RowDefinition>
                     <RowDefinition Height="2px"></RowDefinition>
-                    <RowDefinition Height="1*"></RowDefinition>
+                    <RowDefinition Height="2*"></RowDefinition>
                 </Grid.RowDefinitions>
                 <DockPanel Grid.Row="0">
                     <TreeView x:Name="tvUISTree" SelectedItemChanged="ChangeSelection">

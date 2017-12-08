@@ -28,6 +28,7 @@ namespace UISEditor.View
         public FileEditor()
         {
             InitializeComponent();
+            tvProperty.ToolbarVisible = false;
         }
 
         public void onSwitch()
@@ -81,11 +82,11 @@ namespace UISEditor.View
             {
                 switch (item.TokenTag)
                 {
-                    case ObjectTag.ANI_PROP_DEF:
-                    case ObjectTag.ANI_DEF:
-                    case ObjectTag.PER_DEF:
-                    case ObjectTag.USER_DEF:
-                    case ObjectTag._SYS_LIST_:
+                    case ObjectTag.AnimationProeprty:
+                    case ObjectTag.AnimationDefine:
+                    case ObjectTag.Predefined:
+                    case ObjectTag.Custom:
+                    case ObjectTag.List:
                         parent.Items.Add(PutListToTreeView(new TreeViewItem() { Header = new ItemWrapper(item) }, item as IEnumerable<UISObject>));
                         break;
                     default:

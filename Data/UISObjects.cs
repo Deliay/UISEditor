@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -64,10 +65,10 @@ namespace UISEditor.Data
             AddPropertyConstraint(AnimationName.SHOW, typeof(UISNull));
             AddPropertyConstraint(AnimationName.HIDE, typeof(UISNull));
 
-            AddPropertyConstraint(ObjectTag.ANI_DEF, ":");
-            AddPropertyConstraint(ObjectTag.PER_DEF, "");
-            AddPropertyConstraint(ObjectTag.USER_DEF, "_");
-            AddPropertyConstraint(ObjectTag.ANI_PROP_DEF, "!");
+            AddPropertyConstraint(ObjectTag.AnimationDefine, ":");
+            AddPropertyConstraint(ObjectTag.Predefined, "");
+            AddPropertyConstraint(ObjectTag.Custom, "_");
+            AddPropertyConstraint(ObjectTag.AnimationProeprty, "!");
         }
 
         private static Dictionary<object, LinkedList<object>> Constraint = new Dictionary<object, LinkedList<object>>();
@@ -98,8 +99,8 @@ namespace UISEditor.Data
 
     public enum ObjectTag
     {
-        FUNC_DEF, PER_DEF, USER_DEF, ANI_DEF, ANI_PROP_DEF,
-        PROP, VALUE, IDENTITY, TEXT, _SYS_LIST_
+        Functional, Predefined, Custom, AnimationDefine, AnimationProeprty,
+        Proeprty, Value, Identity, Text, List
     }
 
     public enum PredefineElementType
@@ -229,9 +230,13 @@ namespace UISEditor.Data
 
     public class UISRect : UISLiteralValue
     {
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISLiteralValue Width { get; set; }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISLiteralValue Height { get; set; }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISLiteralValue X { get; set; }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISLiteralValue Y { get; set; }
         public UISRect(UISLiteralValue w, UISLiteralValue h, UISLiteralValue x, UISLiteralValue y) : base(ValueType.RECT)
         {
@@ -247,6 +252,7 @@ namespace UISEditor.Data
 
     public class UISCurve : UISLiteralValue
     {
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public List<UISNumber> Points { get; set; }
         public bool IsPerfabCurve { get; set; }
         public PerfabCurve Perfab { get; set; }
@@ -295,7 +301,9 @@ namespace UISEditor.Data
 
     public class UISSimpleExpr : UISLiteralValue
     {
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISLiteralValue First { get; set; }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISLiteralValue Second { get; set; }
         public bool IsAdd { get; set; }
         public UISSimpleExpr(UISLiteralValue firstOph, UISLiteralValue secondOph, bool isPlus = true) : base(ValueType.SIMPLE_EXPR)
@@ -314,7 +322,9 @@ namespace UISEditor.Data
 
     public class UISAnimationTime : UISLiteralValue
     {
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISNumber StartTime { get; set; }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISNumber EndTime { get; set; }
         public bool IsAdd { get; set; }
         public UISAnimationTime(UISNumber start, UISNumber end, bool add = false) : base(ValueType.TIME)
@@ -341,7 +351,9 @@ namespace UISEditor.Data
 
     public class UISAnimationRepeat : UISLiteralValue
     {
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISNumber RepeatCount { get; set; }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISNumber RepeatTime { get; set; }
         public bool Repeat { get; set; }
         public UISAnimationRepeat(UISNumber repeatCount, UISNumber repeatTime, bool isLoop) : base(ValueType.ANIMATE_REPEAT)
@@ -363,6 +375,7 @@ namespace UISEditor.Data
 
     public class UISAnimationCurve : UISLiteralValue
     {
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISCurve AnimationCurve { get; set; }
         public UISAnimationCurve(UISCurve curve) : base(ValueType.ANIMATE_TRANS)
         {
@@ -388,7 +401,9 @@ namespace UISEditor.Data
 
     public class UISMotion : UISValue
     {
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISAnimationElement TargetAnimation { get; set; }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISNumber Delay { get; set; }
         public UISMotion(UISAnimationElement element) : base(ValueType.MOTION)
         {
@@ -415,7 +430,8 @@ namespace UISEditor.Data
         public byte Blue { get; set; }
         public byte Green { get; set; }
 
-        public Color MixedColor { get; set; }
+        [TypeConverter(typeof(ColorConverter))]
+        public Color MixedColor { get; set; } = Color.FromRgb(0, 0, 0);
         
         public UISHexColor(string value) : base(ValueType.HEX_COLOR) => FormString(value);
 
@@ -428,7 +444,7 @@ namespace UISEditor.Data
             MixedColor = Color.FromRgb(Red, Green, Blue);
         }
 
-        public override string CombineValue() =>  $"#{Red.ToString("{0:X}")}{Green.ToString("{0:X}")}{Blue.ToString("{0:X}")}";
+        public override string CombineValue() =>  $"#{Red.ToString("x")}{Green.ToString("x")}{Blue.ToString("x")}";
         public override string ObjectTreeName() => CombineValue();
     }
 
@@ -443,7 +459,9 @@ namespace UISEditor.Data
 
     public class UISVector : UISValue
     {
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISLiteralValue First { get; set; }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISLiteralValue Second { get; set; }
         public bool IncludeByPar { get; set; }
         public UISVector(UISLiteralValue first, UISLiteralValue second, bool havePar) : base(ValueType.VECTOR)
@@ -504,7 +522,10 @@ namespace UISEditor.Data
     /// </summary>
     public class UISAnimationProperty : UISValue
     {
+        [Category("Element")]
         public AnimationType AnimationType { get; set; }
+        [Category("Element")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISLiteralValue Value { get; set; }
         public UISAnimationProperty(AnimationType prop, UISLiteralValue value) : base(ValueType.ANIMATE_PROP)
         {
@@ -521,12 +542,14 @@ namespace UISEditor.Data
 
     public abstract class UISValue : UISObject
     {
+        [Category("Element")]
         public ValueType ValueType { get; set; }
-        public UISValue(ValueType type) : base(ObjectTag.VALUE)
+        public UISValue(ValueType type) : base(ObjectTag.Value)
         {
             this.ValueType = type;
         }
         public override string ObjectTreeName() => CombineValue();
+        //public abstract void SetValue(object value);
     }
 
     /// <summary>
@@ -535,9 +558,11 @@ namespace UISEditor.Data
     /// </summary>
     public class UISAnimation : UISObject, IEnumerable<UISAnimationProperty>
     {
+        [Category("Element")]
         public AnimationName Name { get; set; }
+        [Category("Animation")]
         public UISList<UISAnimationProperty> AnimationProperties { get; set; } = new UISList<UISAnimationProperty>();
-        public UISAnimation(AnimationName name) : base(ObjectTag.ANI_PROP_DEF)
+        public UISAnimation(AnimationName name) : base(ObjectTag.AnimationProeprty)
         {
             this.Name = name;
         }
@@ -564,9 +589,11 @@ namespace UISEditor.Data
     /// </summary>
     public class UISProperty : UISObject
     {
+        [Category("Element")]
         public Property Property { get; set; }
+        [Category("Element")]
         public UISValue Value { get; set; }
-        public UISProperty(Property t, UISValue value) : base(ObjectTag.PROP)
+        public UISProperty(Property t, UISValue value) : base(ObjectTag.Proeprty)
         {
             this.Value = value;
             this.Property = t;
@@ -585,7 +612,7 @@ namespace UISEditor.Data
     /// </summary>
     public class UISCustomElement : UISElement<UISProperty>
     {
-        public UISCustomElement(string ElementName) : base(ObjectTag.USER_DEF, ElementName)
+        public UISCustomElement(string ElementName) : base(ObjectTag.Custom, ElementName)
         {
         }
 
@@ -602,9 +629,11 @@ namespace UISEditor.Data
     /// </summary>
     public class UISPredefineElement : UISElement<UISProperty>
     {
+        [Category("Index")]
         public int Index { get; set; } = 0;
+        [Category("Element")]
         public PredefineElementType ElemType { get; set; }
-        public UISPredefineElement(PredefineElementType t) : base(ObjectTag.PER_DEF, t.ToString().ToLower())
+        public UISPredefineElement(PredefineElementType t) : base(ObjectTag.Predefined, t.ToString().ToLower())
         {
             ElemType = t;
         }
@@ -624,8 +653,9 @@ namespace UISEditor.Data
     /// </summary>
     public class UISAnimationElement : UISElement<UISAnimation>
     {
+        [Category("Animation")]
         public bool IsInlineAnimationDef { get; set; }
-        public UISAnimationElement(string ElementName, bool isInline, bool isMultiSelect = false) : base(isInline ? ObjectTag.ANI_PROP_DEF : ObjectTag.ANI_DEF, ElementName, isMultiSelect)
+        public UISAnimationElement(string ElementName, bool isInline, bool isMultiSelect = false) : base(isInline ? ObjectTag.AnimationProeprty : ObjectTag.AnimationDefine, ElementName, isMultiSelect)
         {
             this.IsInlineAnimationDef = isInline;
         }
@@ -646,30 +676,26 @@ namespace UISEditor.Data
     /// A generic collection for top-level element
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class UISElement<T> : UISObject, ICollection<T> where T : UISObject
+    public abstract class UISElement<T> : UISList<T> where T : UISObject
     {
 
+        [Category("Element")]
         public ObjectTag ObjectType { get; set; }
         /// <summary>
         /// Target element name
         /// </summary>
+        [Category("Element")]
         public string ElementName { get; set; }
-        /// <summary>
-        /// Generic element properties
-        /// </summary>
-        public UISList<T> Properties { get; set; } = new UISList<T>();
         /// <summary>
         /// Tag this element is a multi-select element
         /// </summary>
+        [Category("Multi")]
         public bool IsMultiSelect { get; set; }
         /// <summary>
         /// Selected indexs
         /// </summary>
+        [Category("Multi")]
         public UISList<UISNumber> Indexs { get; set; }
-
-        public int Count => Properties.Count;
-
-        public bool IsReadOnly => false;
 
         /// <summary>
         /// Base element ctor
@@ -677,8 +703,9 @@ namespace UISEditor.Data
         /// <param name="tokenTag">Which element</param>
         /// <param name="ElementName">element name</param>
         /// <param name="isMultiSelect">is or not a multiselect element</param>
-        public UISElement(ObjectTag tokenTag, string ElementName, bool isMultiSelect = false) : base(tokenTag)
+        public UISElement(ObjectTag tokenTag, string ElementName, bool isMultiSelect = false)
         {
+            this.ObjectType = tokenTag;
             IsMultiSelect = isMultiSelect;
             ObjectType = tokenTag;
             this.ElementName = ElementName;
@@ -692,14 +719,14 @@ namespace UISEditor.Data
         /// <param name="prop"></param>
         public void AddProperty(T prop)
         {
-            Properties.Add(prop);
+            this.Add(prop);
         }
 
         public void AddAllProperty(IEnumerable<T> list)
         {
             foreach (var item in list)
             {
-                Properties.Add(item);
+                this.Add(item);
             }
         }
 
@@ -711,31 +738,18 @@ namespace UISEditor.Data
         {
             string multi = IsMultiSelect ? $"-[{string.Join(",", Indexs)}]" : string.Empty;
             string line = "\n\t";
-            if (ObjectType == ObjectTag.ANI_PROP_DEF)
+            if (ObjectType == ObjectTag.AnimationProeprty)
             {
                 line = ",";
             }
-            return $"{PropertyConstraint.GetPropertyConstraint<string>(ObjectType)}{ElementName}{multi}\n\t{string.Join(line, Properties.Select(p => p.CombineValue()))}";
+            return $"{PropertyConstraint.GetPropertyConstraint<string>(ObjectType)}{ElementName}{multi}\n\t{string.Join(line, this.Select(p => p.CombineValue()))}";
         }
 
         public override string CombineValue()
         {
             return ElementCombineValue();
         }
-
-        public IEnumerator<T> GetEnumerator() => Properties.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => Properties.GetEnumerator();
-
-        public void Add(T item) => AddProperty(item);
-
-        public void Clear() => Properties = new UISList<T>();
-
-        public bool Contains(T item) => Properties.Contains(item);
-
-        public void CopyTo(T[] array, int arrayIndex) => Properties.CopyTo(array, arrayIndex);
-
-        public bool Remove(T item) => Properties.Remove(item);
+        
     }
 
     //start with @
@@ -744,10 +758,12 @@ namespace UISEditor.Data
     /// </summary>
     public class UISFunctionalElement : UISObject
     {
+        [Category("Element")]
         public string Argument { get; set; }
+        [Category("Element")]
         public FunctionElementType ElemType { get; set; }
 
-        public UISFunctionalElement(FunctionElementType t, string arg) : base(ObjectTag.FUNC_DEF)
+        public UISFunctionalElement(FunctionElementType t, string arg) : base(ObjectTag.Functional)
         {
             ElemType = t;
             Argument = arg;
@@ -799,11 +815,11 @@ namespace UISEditor.Data
         public override string CombineValue() => $"+{GroupName}\n{base.CombineValue()}";
     }
 
-    public class UISList<T> : UISObject, ICollection<T>, IReadOnlyCollection<T> where T : UISObject
+    public class UISList<T> : UISObject, IList<T>, ICollection<T>, IReadOnlyCollection<T> where T : UISObject
     {
-        LinkedList<T> list = new LinkedList<T>();
+        List<T> list = new List<T>();
 
-        public UISList() : base(ObjectTag._SYS_LIST_)
+        public UISList() : base(ObjectTag.List)
         {
 
         }
@@ -812,26 +828,32 @@ namespace UISEditor.Data
         {
             foreach (var item in lists)
             {
-                this.list.AddLast(item);
+                this.list.Add(item);
             }
         }
 
         public void Add(T item)
         {
-            this.list.AddLast(item);
+            this.list.Add(item);
         }
 
-        public LinkedList<T> List { get => list; }
+        [Category("Properties")]
+        [TypeConverter(typeof(ArrayConverter))]
+        public T[] List { get => list.ToArray(); set => list = new List<T>(value); }
 
-        public int Count => List.Count;
+        [Category("Properties")]
+        public int Count => list.Count;
 
+        [Category("Properties")]
         public bool IsReadOnly => false;
+
+        public T this[int index] { get => list[index]; set => list[index] = value; }
 
         public override string CombineValue() => string.Join("\n", this.Select(p => p.CombineValue()));
 
-        public IEnumerator<T> GetEnumerator() => List.GetEnumerator();
+        public IEnumerator<T> GetEnumerator() => list.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => List.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => list.GetEnumerator();
 
         public override string ObjectTreeName() => $"List[{typeof(T).Name}]";
 
@@ -842,6 +864,12 @@ namespace UISEditor.Data
         public void CopyTo(T[] array, int arrayIndex) => list.CopyTo(array, arrayIndex);
 
         public bool Remove(T item) => list.Remove(item);
+
+        public int IndexOf(T item) => list.IndexOf(item);
+
+        public void Insert(int index, T item) => list.Insert(index, item);
+
+        public void RemoveAt(int index) => list.RemoveAt(index);
     }
 
     /// <summary>
@@ -849,6 +877,7 @@ namespace UISEditor.Data
     /// </summary>
     public abstract class UISObject
     {
+        [Category("Element")]
         internal ObjectTag TokenTag { get; private set; }
         public abstract string ObjectTreeName();
         public UISObject(ObjectTag tokenTag)

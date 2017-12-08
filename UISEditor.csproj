@@ -62,6 +62,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Bridge\ProeprtyCoverter.cs" />
     <Compile Include="Controller\MainController.cs" />
     <Compile Include="Data\UISPropertyTags.cs" />
     <Compile Include="Data\UISRuntimeException.cs" />
@@ -131,8 +132,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Bridge\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
