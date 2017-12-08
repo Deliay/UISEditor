@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UISEditor.Data;
+using UISEditor.View;
 
 namespace UISEditor.Bridge
 {
@@ -108,5 +109,17 @@ namespace UISEditor.Bridge
         }
     }
 
+    public class UISAnimationNameConverter : TypeConverter
+    {
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) => true;
 
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+         => new StandardValuesCollection(UISObjectTree.Instance.GetAnimations()
+                                        .ToArray());
+
+        public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
+        {
+            return false;
+        }
+    }
 }

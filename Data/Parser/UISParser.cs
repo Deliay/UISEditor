@@ -232,6 +232,7 @@ namespace UISEditor.Data.Parser
             instance = new UISInstance();
             onParseStart?.Invoke(instance, new EventArgs());
             instance.AddObject(uis());
+            instance.SetAnimationList(Animation_Table);
             onParseComplete?.Invoke(instance, instance);
             return instance;
         }

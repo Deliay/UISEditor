@@ -403,6 +403,7 @@ namespace UISEditor.Data
     public abstract class UISLiteralValue : UISValue
     {
         public bool IndexIncreasable { get; set; }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISLiteralValue IndexIncrease { get; set; }
         public UISLiteralValue(ValueType type) : base(type)
         {
@@ -413,7 +414,7 @@ namespace UISEditor.Data
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISMotion : UISValue
     {
-        [TypeConverter(typeof(ExpandableObjectConverter))]
+        [TypeConverter(typeof(UISAnimationNameConverter))]
         public UISAnimationElement TargetAnimation { get; set; }
         [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISNumber Delay { get; set; }

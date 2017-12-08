@@ -25,6 +25,7 @@ namespace UISEditor.View
         public IEnumerator<UISObject> GetEnumerator() => uisOriginTree.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => uisOriginTree.GetEnumerator();
         public IReadOnlyCollection<UISError> GetErrors() => uisOriginTree.ScriptErrors;
+        public IReadOnlyCollection<UISAnimationElement> GetAnimations() => uisOriginTree.AnimationList;
 
         UISInstance uisOriginTree;
 

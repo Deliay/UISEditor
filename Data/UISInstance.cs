@@ -11,8 +11,10 @@ namespace UISEditor.Data
     {
         LinkedList<UISObject> ObjectTree = new LinkedList<UISObject>();
         LinkedList<UISError> Errors = new LinkedList<UISError>();
+        IReadOnlyCollection<UISAnimationElement> Animations;
 
         public IReadOnlyCollection<UISError> ScriptErrors { get => Errors; }
+        public IReadOnlyCollection<UISAnimationElement> AnimationList { get => Animations; }
 
         public void AddError(UISError e)
         {
@@ -40,6 +42,11 @@ namespace UISEditor.Data
         public void AddObject(UISObject obj)
         {
             if (!ObjectTree.Contains(obj)) ObjectTree.AddLast(obj);
+        }
+
+        public void SetAnimationList(IReadOnlyCollection<UISAnimationElement> Animations)
+        {
+            this.Animations = Animations;
         }
 
         public IEnumerator<UISObject> GetEnumerator() => ObjectTree.GetEnumerator();
