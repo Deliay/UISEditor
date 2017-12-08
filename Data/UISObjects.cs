@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using UISEditor.Bridge;
 using UISEditor.Data.Lexical;
 
 namespace UISEditor.Data
@@ -180,6 +181,7 @@ namespace UISEditor.Data
         EASEOUT,
     }
 
+    [TypeConverter(typeof(UISPixelConverter))]
     public class UISPixel : UISLiteralValue
     {
         public double Pixel { get; set; }
@@ -196,6 +198,7 @@ namespace UISEditor.Data
         public override string ObjectTreeName() => CombineValue();
     }
 
+    [TypeConverter(typeof(UISPercentConverter))]
     public class UISPercent : UISLiteralValue
     {
         public double Percent { get; set; }
@@ -210,7 +213,8 @@ namespace UISEditor.Data
         }
         public override string ObjectTreeName() => CombineValue();
     }
-    
+
+    [TypeConverter(typeof(UISNumberConverter))]
     public class UISNumber : UISLiteralValue
     {
         public double Number { get; set; }
@@ -228,6 +232,7 @@ namespace UISEditor.Data
         public override string ObjectTreeName() => CombineValue();
     }
 
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISRect : UISLiteralValue
     {
         [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -250,6 +255,7 @@ namespace UISEditor.Data
         public override string ObjectTreeName() => CombineValue();
     }
 
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISCurve : UISLiteralValue
     {
         [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -284,6 +290,7 @@ namespace UISEditor.Data
         public override string ObjectTreeName() => CombineValue();
     }
 
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISText : UISLiteralValue
     {
         public string Text { get; set; }
@@ -299,6 +306,7 @@ namespace UISEditor.Data
         public override string ObjectTreeName() => CombineValue();
     }
 
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISSimpleExpr : UISLiteralValue
     {
         [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -320,6 +328,7 @@ namespace UISEditor.Data
         public override string ObjectTreeName() => CombineValue();
     }
 
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISAnimationTime : UISLiteralValue
     {
         [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -349,6 +358,7 @@ namespace UISEditor.Data
         public override string ObjectTreeName() => CombineValue();
     }
 
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISAnimationRepeat : UISLiteralValue
     {
         [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -373,6 +383,7 @@ namespace UISEditor.Data
         public override string ObjectTreeName() => CombineValue();
     }
 
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISAnimationCurve : UISLiteralValue
     {
         [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -399,6 +410,7 @@ namespace UISEditor.Data
         public override string ObjectTreeName() => CombineValue();
     }
 
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISMotion : UISValue
     {
         [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -424,6 +436,7 @@ namespace UISEditor.Data
         public override string ObjectTreeName() => TargetAnimation.ElementName;
     }
 
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISHexColor : UISValue
     {
         public byte Red { get; set; }
@@ -457,6 +470,7 @@ namespace UISEditor.Data
         }
     }
 
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISVector : UISValue
     {
         [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -480,7 +494,8 @@ namespace UISEditor.Data
         }
         public override string ObjectTreeName() => CombineValue();
     }
-    
+
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISFrameFile : UISValue
     {
         public int StartFrame { get; set; }
@@ -499,7 +514,8 @@ namespace UISEditor.Data
         }
         public override string ObjectTreeName() => CombineValue();
     }
-    
+
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISFileName : UISValue
     {
         public string FileName { get; set; }
@@ -520,6 +536,7 @@ namespace UISEditor.Data
     /// UIS Animation Property
     /// <para>The animation property</para>
     /// </summary>
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISAnimationProperty : UISValue
     {
         [Category("Element")]
@@ -542,7 +559,7 @@ namespace UISEditor.Data
 
     public abstract class UISValue : UISObject
     {
-        [Category("Element")]
+        [Category("Element"), ReadOnly(true)]
         public ValueType ValueType { get; set; }
         public UISValue(ValueType type) : base(ObjectTag.Value)
         {
@@ -556,42 +573,41 @@ namespace UISEditor.Data
     /// UIS Animation
     /// <para>Manager the animation property of element property</para>
     /// </summary>
-    public class UISAnimation : UISObject, IEnumerable<UISAnimationProperty>
+    [TypeConverter(typeof(ExpandableObjectConverter))]
+    public class UISAnimation : UISList<UISAnimationProperty>
     {
         [Category("Element")]
         public AnimationName Name { get; set; }
         [Category("Animation")]
-        public UISList<UISAnimationProperty> AnimationProperties { get; set; } = new UISList<UISAnimationProperty>();
-        public UISAnimation(AnimationName name) : base(ObjectTag.AnimationProeprty)
+        public UISAnimation(AnimationName name) : base()
         {
+            base.TokenTag = ObjectTag.AnimationProeprty;
             this.Name = name;
         }
 
         public void AddAnimationProperty(UISAnimationProperty prop)
         {
-            AnimationProperties.Add(prop);
+            this.Add(prop);
         }
 
         public override string CombineValue()
         {
-            return string.Join(",", $"name={Name.ToString()}", string.Join(",", AnimationProperties.Select(p => p.CombineValue())));
+            return string.Join(",", $"name={Name.ToString()}", string.Join(",", this.Select(p => p.CombineValue())));
         }
         public override string ObjectTreeName() => $"{Name.ToString()}";
-
-        public IEnumerator<UISAnimationProperty> GetEnumerator() => AnimationProperties.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => AnimationProperties.GetEnumerator();
     }
 
     /// <summary>
     /// UIS Property
     /// <para>The normalize property implement for elements</para>
     /// </summary>
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISProperty : UISObject
     {
         [Category("Element")]
         public Property Property { get; set; }
         [Category("Element")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public UISValue Value { get; set; }
         public UISProperty(Property t, UISValue value) : base(ObjectTag.Proeprty)
         {
@@ -610,6 +626,7 @@ namespace UISEditor.Data
     /// UIS Custom Element
     /// <para>Manager user custom element</para>
     /// </summary>
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISCustomElement : UISElement<UISProperty>
     {
         public UISCustomElement(string ElementName) : base(ObjectTag.Custom, ElementName)
@@ -627,6 +644,7 @@ namespace UISEditor.Data
     /// UIS PreDefined Element 
     /// <para>Manager per-defined element</para>
     /// </summary>
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISPredefineElement : UISElement<UISProperty>
     {
         [Category("Index")]
@@ -651,6 +669,7 @@ namespace UISEditor.Data
     /// <para><see cref="UISAnimation"/> Manger</para>
     /// <para>For standalone animation define(motion=!animtion), use <see cref="UISAnimation"/> directly </para>
     /// </summary>
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISAnimationElement : UISElement<UISAnimation>
     {
         [Category("Animation")]
@@ -676,6 +695,7 @@ namespace UISEditor.Data
     /// A generic collection for top-level element
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public abstract class UISElement<T> : UISList<T> where T : UISObject
     {
 
@@ -878,7 +898,7 @@ namespace UISEditor.Data
     public abstract class UISObject
     {
         [Category("Element")]
-        internal ObjectTag TokenTag { get; private set; }
+        public ObjectTag TokenTag { get; protected set; }
         public abstract string ObjectTreeName();
         public UISObject(ObjectTag tokenTag)
         {
