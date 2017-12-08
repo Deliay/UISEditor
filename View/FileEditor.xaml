@@ -53,7 +53,13 @@
                     <RowDefinition Height="2*"></RowDefinition>
                 </Grid.RowDefinitions>
                 <DockPanel Grid.Row="0">
-                    <TreeView x:Name="tvUISTree" SelectedItemChanged="ChangeSelection">
+                    <TreeView x:Name="tvUISTree" SelectedItemChanged="ChangeSelection" MouseRightButtonDown="TreeRightClickElement">
+                        <TreeView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Name="CreateNode" Header="Create Node" Click="CreateNodeClick" />
+                                <MenuItem Name="Delete" Header="Delete Node" />
+                            </ContextMenu>
+                        </TreeView.ContextMenu>
                     </TreeView>
                 </DockPanel>
                 <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch"/>

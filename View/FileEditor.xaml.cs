@@ -109,7 +109,7 @@ namespace UISEditor.View
                 return;
             }
             UISObject target = wrapper.Item;
-            if(target is UISProperty prop)
+            if(target is UISProperty prop) 
             {
                 //tvProperty.SelectedObjects = new[] { target , prop.Value};
                 tvProperty.SelectedObject = prop.Value;
@@ -131,6 +131,21 @@ namespace UISEditor.View
         private void ChangeSelection(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             LoadProperty(e.NewValue);
+        }
+
+        private void TreeRightClickElement(object sender, MouseButtonEventArgs e)
+        {
+            DisplayContextMenu(tvUISTree.SelectedItem);
+        }
+
+        private void DisplayContextMenu(object item)
+        {
+            tvUISTree.ContextMenu.IsOpen = true;
+        }
+
+        private void CreateNodeClick(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
