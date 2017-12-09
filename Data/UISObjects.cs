@@ -101,7 +101,7 @@ namespace UISEditor.Data
     public enum ObjectTag
     {
         Functional, Predefined, Custom, AnimationDefine, AnimationProeprty,
-        Proeprty, Value, Identity, Text, List
+        Proeprty, Value, Identity, Text, List, Comment
     }
 
     public enum PredefineElementType
@@ -169,7 +169,7 @@ namespace UISEditor.Data
 
     public enum AnimationType
     {
-        FORM, TO,
+        FROM, TO,
         TIME, ATIME,
         TRANS,
         REPEAT,
@@ -351,7 +351,7 @@ namespace UISEditor.Data
             else
             {
                 string perfix = IsAdd ? "+" : string.Empty;
-                return $"({StartTime.Number}, {perfix}{EndTime.Number})";
+                return $"({StartTime.Number},{perfix}{EndTime.Number})";
 
             }
         }
@@ -376,9 +376,11 @@ namespace UISEditor.Data
         public override string CombineValue()
         {
             string loop = Repeat ? "r" : string.Empty;
-            string count = RepeatTime.Number > 0 ? $",{RepeatTime}" : string.Empty;
+            string repperfix = RepeatTime.Number > 0 ? "(" : "";
+            string repsuffix = RepeatTime.Number > 0 ? ")" : "";
+            string count = (RepeatTime.Number > 0 ? $",{RepeatTime}" : string.Empty);
 
-            return $"{loop}{RepeatCount.CombineValue()}{count}";
+            return $"{loop}{repperfix}{RepeatCount.CombineValue()}{count}{repsuffix}";
         }
         public override string ObjectTreeName() => CombineValue();
     }
@@ -458,7 +460,7 @@ namespace UISEditor.Data
             MixedColor = Color.FromRgb(Red, Green, Blue);
         }
 
-        public override string CombineValue() =>  $"#{Red.ToString("x")}{Green.ToString("x")}{Blue.ToString("x")}";
+        public override string CombineValue() =>  $"#{Red.ToString("x").PadLeft(2, '0')}{Green.ToString("x").PadLeft(2, '0')}{Blue.ToString("x").PadLeft(2, '0')}";
         public override string ObjectTreeName() => CombineValue();
     }
 
@@ -623,6 +625,24 @@ namespace UISEditor.Data
         public override string ObjectTreeName() => $"{Property.ToString()}";
     }
 
+    [TypeConverter(typeof(ExpandableObjectConverter))]
+    public class UISUnknownNode : UISProperty
+    {
+        [Category("Element")]
+        public string NodeName { get; set; }
+        public UISUnknownNode(string name, UISValue value) : base(Property.UNSUPPOORT, value)
+        {
+            this.Value = value;
+            this.NodeName = name;
+        }
+
+        public override string CombineValue()
+        {
+            return string.Join("=", NodeName, Value.CombineValue());
+        }
+        public override string ObjectTreeName() => $"{NodeName}";
+    }
+
     /// <summary>
     /// UIS Custom Element
     /// <para>Manager user custom element</para>
@@ -686,7 +706,7 @@ namespace UISEditor.Data
             {
                 return this.ElementCombineValue();
             }
-            return $":{base.ElementCombineValue()}";
+            return $"{base.ElementCombineValue()}";
         }
 
         public override string ObjectTreeName() => $"{ElementName}";
@@ -716,7 +736,8 @@ namespace UISEditor.Data
         /// Selected indexs
         /// </summary>
         [Category("Multi")]
-        public UISList<UISNumber> Indexs { get; set; }
+        [TypeConverter(typeof(CollectionConverter))]
+        public UISList<UISNumber> Indexs { get; set; } = new UISList<UISNumber>();
 
         /// <summary>
         /// Base element ctor
@@ -891,6 +912,19 @@ namespace UISEditor.Data
         public void Insert(int index, T item) => list.Insert(index, item);
 
         public void RemoveAt(int index) => list.RemoveAt(index);
+    }
+
+    public class UISComment : UISObject
+    {
+        public string Comment { get; set; }
+        public UISComment(Comment value) : base(ObjectTag.Comment)
+        {
+            Comment = value.Value;
+        }
+
+        public override string CombineValue() => $"#{Comment}";
+
+        public override string ObjectTreeName() => "#Comment";
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
-﻿using ICSharpCode.AvalonEdit.Highlighting;
+﻿using ICSharpCode.AvalonEdit.Document;
+using ICSharpCode.AvalonEdit.Highlighting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,25 +35,25 @@ namespace UISEditor.View
         public void onSwitch()
         {
             tvUISTree.Items.Clear();
-            tvUISTree.Items.Add(PutListToTreeView(new TreeViewItem() { Header = UISObjectTree.Instance.FileName }, UISObjectTree.Instance));
+            tvUISTree.Items.Add(PutListToTreeView(new TreeViewItem() { Header = UISObjectTree.Instance.FileName, DisplayMemberPath = UISObjectTree.Instance.FileName }, UISObjectTree.Instance));
             if (tvUISTree.Items.Count >= 2) tvUISTree.Items.RemoveAt(1);
             PutErrorListToTreeView(UISObjectTree.Instance.GetErrors());
             textEditor.Text = string.Join("", UISObjectTree.Instance.Select(p => p.CombineValue()));
             Editor = this.textEditor;
         }
 
-        public class ItemWrapper
-        {
-            public string Name { get; private set; }
-            public UISObject Item { get; private set; }
-            public ItemWrapper(UISObject item)
-            {
-                Item = item;
-                Name = Item.ObjectTreeName();
-            }
+        //public class ItemWrapper
+        //{
+        //    public string Name { get; private set; }
+        //    public UISObject Item { get; private set; }
+        //    public ItemWrapper(UISObject item)
+        //    {
+        //        Item = item;
+        //        Name = Item.ObjectTreeName();
+        //    }
 
-            public override string ToString() => Name;
-        }
+        //    public override string ToString() => Name;
+        //}
 
         public class PropertyWrapper
         {
@@ -87,10 +88,10 @@ namespace UISEditor.View
                     case ObjectTag.Predefined:
                     case ObjectTag.Custom:
                     case ObjectTag.List:
-                        parent.Items.Add(PutListToTreeView(new TreeViewItem() { Header = new ItemWrapper(item) }, item as IEnumerable<UISObject>));
+                        parent.Items.Add(PutListToTreeView(new TreeViewItem() { Header = item, DisplayMemberPath = $"{parent.DisplayMemberPath}/{item.ObjectTreeName()}" }, item as IEnumerable<UISObject>));
                         break;
                     default:
-                        parent.Items.Add(new ItemWrapper(item));
+                        parent.Items.Add(new TreeViewItem() { Header = item, DisplayMemberPath = $"{parent.DisplayMemberPath}/{item.ObjectTreeName()}" });
                         break;
                 }
             }
@@ -99,19 +100,19 @@ namespace UISEditor.View
 
         public void LoadProperty(object sender)
         {
-            ItemWrapper wrapper = (sender as ItemWrapper);
-            if (wrapper == null)
-            {
-                wrapper = ((TreeViewItem)sender)?.Header as ItemWrapper;
-            }
-            if (wrapper == null)
-            {
-                return;
-            }
-            UISObject target = wrapper.Item;
+            //ItemWrapper wrapper = (sender as ItemWrapper);
+            //if (wrapper == null)
+            //{
+            //    wrapper = ((TreeViewItem)sender)?.Header as ItemWrapper;
+            //}
+            //if (wrapper == null)
+            //{
+            //    return;
+            //}
+            if (sender == null) return;
+            UISObject target = (sender as TreeViewItem).Header as UISObject;
             if(target is UISProperty prop) 
             {
-                //tvProperty.SelectedObjects = new[] { target , prop.Value};
                 tvProperty.SelectedObject = prop.Value;
             }
             else
@@ -146,6 +147,49 @@ namespace UISEditor.View
         private void CreateNodeClick(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void PropertyValueChange(object s, System.Windows.Forms.PropertyValueChangedEventArgs e)
+        {
+            textEditor.Text = string.Join("", UISObjectTree.Instance.Select(p => p.CombineValue()));
+        }
+
+        private void UpdateDOM()
+        {
+            string current = string.Empty;
+            if (tvUISTree.SelectedItem != null)
+            {
+                //storage current path value
+                current = (tvUISTree.SelectedItem as TreeViewItem).DisplayMemberPath;
+            }
+            UISObjectTree.UpdateInstanceByCode(textEditor.Text);
+            tvUISTree.Items.Clear();
+            tvUISTree.Items.Add(PutListToTreeView(new TreeViewItem() { Header = UISObjectTree.Instance.FileName, DisplayMemberPath = UISObjectTree.Instance.FileName }, UISObjectTree.Instance));
+            if (tvUISTree.Items.Count >= 2) tvUISTree.Items.RemoveAt(1);
+            PutErrorListToTreeView(UISObjectTree.Instance.GetErrors());
+            //restore
+            RestoreSelectByPath(tvUISTree.Items, current);
+            tvProperty.Refresh();
+        }
+
+        private void RestoreSelectByPath(ItemCollection root, string path)
+        {
+            foreach (var item in root)
+            {
+                if (item is TreeViewItem i)
+                {
+                    if (i.DisplayMemberPath == path)
+                    {
+                        i.IsExpanded = true;
+                        i.IsSelected = true;
+                        return;
+                    }
+                    else
+                    {
+                        if (i.Items.Count > 0) RestoreSelectByPath(i.Items, path);
+                    }
+                }
+            }
         }
     }
 }

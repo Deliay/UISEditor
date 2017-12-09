@@ -28,7 +28,8 @@
                     Name="textEditor"
                     FontFamily="Consolas"
                     SyntaxHighlighting="C#"
-                    FontSize="10pt"/>
+                    FontSize="10pt" ShowLineNumbers="True">
+                    </avalonEdit:TextEditor>
                 </DockPanel>
                 <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch"/>
                 <DockPanel Grid.Row="2">
@@ -65,7 +66,7 @@
                 <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch"/>
                 <DockPanel Grid.Row="2">
                     <WindowsFormsHost Name="propertyGridHost">
-                        <forms:PropertyGrid x:Name="tvProperty"/>
+                        <forms:PropertyGrid x:Name="tvProperty" PropertyValueChanged="PropertyValueChange"/>
                     </WindowsFormsHost>
                     <!--<ListView x:Name="tvElementProperty">
                         <ListView.View>

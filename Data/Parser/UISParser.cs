@@ -135,13 +135,23 @@ namespace UISEditor.Data.Parser
         private static void move()
         {
             look = Reader.Read();
-            while (look.TokenTag == Tag.Comment) look = Reader.Read();
+            while (look.TokenTag == Tag.SPACE) look = Reader.Read();
         }
 
         private static void move_line()
         {
             look = Reader.Read();
-            while (Test(Tag.Comment, Tag.LINE_END)) look = Reader.Read();
+            while (Test(Tag.LINE_END)) look = Reader.Read();
+        }
+
+        private static void move_force()
+        {
+            look = Reader.Read();
+        }
+
+        private static void space()
+        {
+            while (Test(Tag.SPACE)) look = Reader.Read();
         }
 
         private static bool Test(params Tag[] tags)
@@ -158,13 +168,13 @@ namespace UISEditor.Data.Parser
         private static bool TestGrammar(params char[] tags)
         {
             if (tags.Contains((char)look.TokenTag)) return true;
-            else throw new TokenWrongException(look, (Tag)tags[0]);
+            else { ThrowError(new TokenWrongException(look, (Tag)tags[0])); move(); return false; }
         }
 
         private static bool TestGrammar(params Tag[] tags)
         {
             if (tags.Contains(look.TokenTag)) return true;
-            else throw new TokenWrongException(look, tags);
+            else { ThrowError(new TokenWrongException(look, (Tag)tags[0])); move(); return false; }
         }
 
         private static bool Expect(params Tag[] tags)
@@ -202,7 +212,9 @@ namespace UISEditor.Data.Parser
             }
             else
             {
-                throw new TokenWrongException(look, tags);
+                ThrowError(new TokenWrongException(look, tags));
+                move();
+                return false;
             }
         }
 
@@ -215,7 +227,9 @@ namespace UISEditor.Data.Parser
             }
             else
             {
-                throw new TokenWrongException(look, (Tag)tags[0]);
+                ThrowError(new TokenWrongException(look, (Tag)tags[0]));
+                move();
+                return false;
             }
         }
 
@@ -228,7 +242,6 @@ namespace UISEditor.Data.Parser
         public static UISInstance ParseInstance()
         {
             Reader = new TokenReader(Loader.TokenList);
-            move();
             instance = new UISInstance();
             onParseStart?.Invoke(instance, new EventArgs());
             instance.AddObject(uis());

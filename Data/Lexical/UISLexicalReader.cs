@@ -9,7 +9,7 @@ namespace UISEditor.Data.Lexical
     public class Reader
     {
         string codes;
-        int currentPos = 0, currentLine = 0, currentLinePos = 0;
+        int currentPos = 1, currentLine = 1, currentLinePos = 1;
         public Reader(string code)
         {
             codes = '\n' + code + '\n';

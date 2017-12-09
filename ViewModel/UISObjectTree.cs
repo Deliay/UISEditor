@@ -19,6 +19,12 @@ namespace UISEditor.View
             ourInstance = new UISObjectTree(FilePath);
         }
 
+        public static void UpdateInstanceByCode(string Code)
+        {
+            UISParser.ReadCode(Code);
+            Instance.uisOriginTree = UISParser.ParseInstance();
+        }
+
         public string FilePath { get; private set; }
         public string FileName { get => Path.GetFileName(FilePath); }
 
@@ -34,7 +40,6 @@ namespace UISEditor.View
             this.FilePath = FilePath;
             UISParser.ReadFile(FilePath);
             uisOriginTree = UISParser.ParseInstance();
-
         }
 
     }

@@ -16,21 +16,46 @@ namespace UISEditor.Data.Parser
         private static Property CURRENT_PROPERTY;
         private static LinkedList<UISAnimationElement> Animation_Table = new LinkedList<UISAnimationElement>();
         private static int TEMP_ANIMATION_FLAG = 0;
+        private static UISList<UISObject> tempTree;
 
         private static UISList<UISObject> uis()
         {
             move_line();
-            UISList<UISObject> list = new UISList<UISObject>
+            tempTree = new UISList<UISObject>();
+
+            var cm = comments();
+            if (cm.Count > 0)
+                tempTree.Add(cm);
+
+            tempTree.Add(cmds());
+            tempTree.Add(elements());
+
+            return tempTree;
+        }
+        
+        private static UISList<UISComment> comments()
+        {
+            UISList<UISComment> currentList = new UISList<UISComment>();
+
+            while(Test(Tag.Comment))
             {
-                cmds(),
-                elements()
-            };
-            return list;
+                currentList.Add(comment());
+            }
+            return currentList;
         }
 
+        private static UISComment comment()
+        {
+            var obj = look as Comment;
+            Expect(Tag.Comment);
+            return new UISComment(obj);
+        }
 
         private static UISList<UISFunctionalElement> cmds()
         {
+            var cm = comments();
+            if(cm.Count > 0)
+                tempTree.Add(cm);
             UISList<UISFunctionalElement> currentList = new UISList<UISFunctionalElement>();
             while (Test(Tag.AtProp))
             {
@@ -51,6 +76,9 @@ namespace UISEditor.Data.Parser
 
         private static UISList<UISObject> elements()
         {
+            var cm = comments();
+            if (cm.Count > 0)
+                tempTree.Add(cm);
             UISList<UISObject> currentList = new UISList<UISObject>();
             while (true)
             {
@@ -67,6 +95,8 @@ namespace UISEditor.Data.Parser
             if (Test(Tag.IDENTITY)) return predefineElement();
             else if (Test(Tag.UserDef)) return customElement();
             else if (Test(Tag.Animation)) return animationElement();
+            else if (Test(Tag.Comment)) return comment();
+            else if (Test(Tag.LINE_END)) return new UISComment(new Comment(Reader.RealLine, ""));
             else if (Test(Tag.Add))
             {
                 ExpectGrammar(Tag.Add);
@@ -153,7 +183,7 @@ namespace UISEditor.Data.Parser
                 {
                     move();
                     Word id = look as Word;
-                    if (id.Lexeme != "delay") ThrowError( new UISUnsupportPropertyException(id.Lexeme));
+                    if (id.Lexeme != "delay") ThrowError(new UISUnsupportPropertyException(id.Lexeme));
                     ExpectGrammar(Tag.IDENTITY);
                     ExpectGrammar(Tag.Equal);
                     TestGrammar(Tag.NUMBER);
@@ -272,7 +302,11 @@ namespace UISEditor.Data.Parser
             
             CURRENT_PROPERTY = result;
             UISValue val = value();
-
+            
+            if(result == Property.UNSUPPOORT)
+            {
+                return new UISUnknownNode(prop.Lexeme, val);
+            }
             return new UISProperty(result, val);
         }
 
@@ -333,12 +367,13 @@ namespace UISEditor.Data.Parser
             do
             {
                 kw = look as Word;
+                if (kw == null) break;
                 ExpectGrammar(Tag.IDENTITY);
-                switch (kw.Lexeme)
+                switch (kw.Lexeme.ToLower())
                 {
                     case "from":
                         ExpectGrammar(Tag.Equal);
-                        ani.AddAnimationProperty(new UISAnimationProperty(AnimationType.FORM, readFunc() as UISLiteralValue));
+                        ani.AddAnimationProperty(new UISAnimationProperty(AnimationType.FROM, readFunc() as UISLiteralValue));
                         Expect(Tag.Split);
                         break;
                     case "to":
@@ -673,7 +708,7 @@ namespace UISEditor.Data.Parser
                 if (result == null) break;
                 if (result.GetType() == terminal) break;
                 final += result.Lexeme;
-                move();
+                move_force();
             }
             return new UISText(final);
         }
