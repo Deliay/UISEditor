@@ -9,7 +9,7 @@
       d:DesignHeight="300" d:DesignWidth="300"
       Title="FileEditor">
 
-    <Grid>
+    <Grid x:Name="EditorGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="6*"></ColumnDefinition>
             <ColumnDefinition Width="2*"></ColumnDefinition>
@@ -80,5 +80,21 @@
 
             </Grid>
         </DockPanel>
+
+        <Popup x:Name="PopupDialog" AllowsTransparency="True" PopupAnimation="Fade" Placement="Center">
+            <Border BorderThickness="2" BorderBrush="SteelBlue" Width="auto" Height="auto">
+                <Grid Background="White">
+                    <DockPanel Height="28" VerticalAlignment="Top" Background="SteelBlue">
+                        <TextBox Height="26" Name="TxtBoxTitle" Width="120" Background="SteelBlue" BorderThickness="0" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White" FontSize="16" Focusable="False" IsHitTestVisible="False" IsTabStop="False" VerticalContentAlignment="Center">Create Node</TextBox>
+                        <Button Height="26" Name="BtnClose" Width="26" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="16" Background="SteelBlue" Click="ClosePopup">X</Button>
+                    </DockPanel>
+
+                    <Grid Margin="0,30,0,0">
+                        <Frame Name="PopupContent" NavigationUIVisibility="Hidden" Content="Loading..."></Frame>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Popup>
     </Grid>
+
 </Page>

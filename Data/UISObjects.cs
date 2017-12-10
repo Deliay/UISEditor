@@ -16,12 +16,12 @@ namespace UISEditor.Data
         static PropertyConstraint()
         {
             AddPropertyConstraint(Property.TEX, typeof(UISFileName));
-            for (int i = 39; i < 48; i++)
+            for (int i = (int)Property.TEX2; i < (int)Property.TEX10; i++)
             {
                 AddPropertyConstraint((Property)i, typeof(UISFileName));
             }
             AddPropertyConstraint(Property.FRAME, typeof(UISFrameFile));
-            for (int i = 19; i < 38; i++)
+            for (int i = (int)Property.FRAME2; i < (int)Property.FRAME20; i++)
             {
                 AddPropertyConstraint((Property)i, typeof(UISFrameFile));
             }
@@ -41,6 +41,26 @@ namespace UISEditor.Data
             AddPropertyConstraint(Property.FSIZE, typeof(UISNumber));
             AddPropertyConstraint(Property.BLEND, typeof(UISNumber));
             AddPropertyConstraint(Property.TYPE, typeof(UISNumber));
+            AddPropertyConstraint(Property.TYPE2, typeof(UISNumber));
+            AddPropertyConstraint(Property.INTERVAL, typeof(UISNumber));
+
+
+            AddPropertyConstraint(Property.MOTION, typeof(UISMotion));
+            AddPropertyConstraint(Property.ACTION1, typeof(UISMotion));
+            AddPropertyConstraint(Property.ACTION2, typeof(UISMotion));
+            AddPropertyConstraint(Property.HOVER, typeof(UISMotion));
+            AddPropertyConstraint(Property.LEAVE, typeof(UISMotion));
+
+            AddPropertyConstraint(Property.TEXT, typeof(UISText));
+            AddPropertyConstraint(Property.PARENT, typeof(UISText));
+
+            AddPropertyConstraint(Property.TAG, typeof(UISNumber));
+            AddPropertyConstraint(Property.ETAG, typeof(UISNumber));
+
+            AddPropertyConstraint(Property.LANG, typeof(UISText));
+            AddPropertyConstraint(Property.UNSUPPOORT, typeof(UISUnknownNode));
+            AddPropertyConstraint(Property.TIP, typeof(UISText));
+            AddPropertyConstraint(Property.SHOW, typeof(UISMotion));
 
             //AddPropertyConstraint(Property.TEXT, typeof(UISWord));
 
@@ -65,6 +85,18 @@ namespace UISEditor.Data
 
             AddPropertyConstraint(AnimationName.SHOW, typeof(UISNull));
             AddPropertyConstraint(AnimationName.HIDE, typeof(UISNull));
+
+            AddPropertyConstraint(typeof(UISPredefineElement), ObjectTag.Predefined);
+            AddPropertyConstraint(typeof(UISFunctionalElement), ObjectTag.Functional);
+            AddPropertyConstraint(typeof(UISComment), ObjectTag.Comment);
+            AddPropertyConstraint(typeof(UISCustomElement), ObjectTag.Custom);
+            AddPropertyConstraint(typeof(UISAnimationElement), ObjectTag.AnimationDefine);
+
+            for (int i = (int)Property.RECT; i < (int)Property.RECT10; i++)
+            {
+                AddPropertyConstraint((Property)i, typeof(UISRect));
+            }
+            AddPropertyConstraint(Property.PADDING, typeof(UISRect));
 
             AddPropertyConstraint(ObjectTag.AnimationDefine, ":");
             AddPropertyConstraint(ObjectTag.Predefined, "");
@@ -857,14 +889,21 @@ namespace UISEditor.Data
         public override string CombineValue() => $"+{GroupName}\n{base.CombineValue()}";
     }
 
-    public class UISList<T> : UISObject, IList<T>, ICollection<T>, IReadOnlyCollection<T> where T : UISObject
+    public abstract class UISList : UISObject
     {
-        List<T> list = new List<T>();
-
         public UISList() : base(ObjectTag.List)
         {
 
         }
+
+        public abstract Type GetListType();
+    }
+
+    public class UISList<T> : UISList, IList<T>, ICollection<T>, IReadOnlyCollection<T> where T : UISObject
+    {
+        List<T> list = new List<T>();
+
+        public override Type GetListType() => typeof(T);
 
         public void AddAll(IEnumerable<T> lists)
         {

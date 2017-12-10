@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using UISEditor.Controller;
 using UISEditor.Data;
+using UISEditor.ViewModel;
 
 namespace UISEditor.View
 {
@@ -25,11 +26,18 @@ namespace UISEditor.View
     public partial class FileEditor : Page, IViewSwitch
     {
         public static ICSharpCode.AvalonEdit.TextEditor Editor = null;
+        public static Array AllowTag;
 
         public FileEditor()
         {
             InitializeComponent();
             tvProperty.ToolbarVisible = false;
+            PopupContent.ContentRendered += (p, v) => {
+                if (PopupContent.Content is IViewSwitch sw)
+                {
+                    sw.onSwitch();
+                }
+            };
         }
 
         public void onSwitch()
@@ -146,7 +154,33 @@ namespace UISEditor.View
 
         private void CreateNodeClick(object sender, RoutedEventArgs e)
         {
+            if(tvUISTree.SelectedItem is TreeViewItem tvi 
+                && tvi.Header is UISObject obj
+                && obj is UISList lst)
+            {
+                Type listType = lst.GetListType();
+                if (listType == typeof(UISObject))
+                {
 
+                    AllowTag = new ObjectTag[] { ObjectTag.AnimationDefine, ObjectTag.Comment, ObjectTag.Predefined, ObjectTag.Functional, ObjectTag.Custom, ObjectTag.List };
+                }
+                else if (listType == typeof(UISProperty))
+                {
+                    AllowTag = Enum.GetValues(typeof(Property));
+                }
+                else if (listType == typeof(UISAnimation))
+                {
+                    AllowTag = Enum.GetValues(typeof(AnimationName));
+                }
+                else
+                {
+                    ObjectTag tag = PropertyConstraint.GetPropertyConstraint<ObjectTag>(lst.GetListType());
+                    AllowTag = new ObjectTag[] { tag };
+                }
+                    
+                ShowModalDialog(true);
+                this.PopupContent.LoadDialog(Dialog.CreateNode);
+            }
         }
 
         private void PropertyValueChange(object s, System.Windows.Forms.PropertyValueChangedEventArgs e)
@@ -180,8 +214,19 @@ namespace UISEditor.View
                 {
                     if (i.DisplayMemberPath == path)
                     {
+                        var p = i.Parent;
+                        do
+                        {
+                            if(p is TreeViewItem f)
+                            {
+                                f.IsExpanded = true;
+                                p = f.Parent;
+                            }
+                        } while (p != null);
+
                         i.IsExpanded = true;
                         i.IsSelected = true;
+
                         return;
                     }
                     else
@@ -190,6 +235,17 @@ namespace UISEditor.View
                     }
                 }
             }
+        }
+
+        public void ShowModalDialog(bool bShow)
+        {
+            this.PopupDialog.IsOpen = bShow;
+            this.EditorGrid.IsEnabled = !bShow;
+        }
+
+        private void ClosePopup(object sender, RoutedEventArgs e)
+        {
+            ShowModalDialog(false);
         }
     }
 }

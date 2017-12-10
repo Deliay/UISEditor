@@ -66,6 +66,10 @@
     <Compile Include="Controller\MainController.cs" />
     <Compile Include="Data\UISPropertyTags.cs" />
     <Compile Include="Data\UISRuntimeException.cs" />
+    <Compile Include="ViewModel\DialogResource.cs" />
+    <Compile Include="View\Dialog\CreateNode.xaml.cs">
+      <DependentUpon>CreateNode.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\FileEditor.xaml.cs">
       <DependentUpon>FileEditor.xaml</DependentUpon>
     </Compile>
@@ -74,6 +78,10 @@
     </Compile>
     <Compile Include="ViewModel\UISObjectTree.cs" />
     <Compile Include="ViewModel\UISWorkspace.cs" />
+    <Page Include="View\Dialog\CreateNode.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\FileEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

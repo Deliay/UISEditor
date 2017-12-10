@@ -91,7 +91,7 @@ namespace UISEditor.Data.Parser
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.SHOW, nul);
             PropertyConstraint.AddPropertyConstraint<Func<UISValue>>(AnimationName.HIDE, nul);
 
-            for (int i = 48; i < 58; i++)
+            for (int i = (int)Property.RECT; i < (int)Property.RECT10; i++)
             {
                 PropertyConstraint.AddPropertyConstraint<Func<UISRect>>((Property)i, rect);
             }
