@@ -5,7 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UISEditor"
         mc:Ignorable="d"
-        Title="UIS Editor - PREVIEW VERSION - " Height="473.558" Width="732.43" MinWidth="325" WindowStartupLocation="CenterScreen" Loaded="LoadComplete">
+        Title="UIS Editor - PREVIEW VERSION - " Height="473.558" Width="732.43" MinWidth="325" WindowStartupLocation="CenterScreen" Loaded="LoadComplete" WindowState="Maximized">
+    <Window.Effect>
+        <DropShadowEffect Opacity="0.6"/>
+    </Window.Effect>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="24" MaxHeight="32"/>

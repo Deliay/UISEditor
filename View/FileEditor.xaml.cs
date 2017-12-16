@@ -172,6 +172,10 @@ namespace UISEditor.View
                 {
                     AllowTag = Enum.GetValues(typeof(AnimationName));
                 }
+                else if(listType == typeof(UISFunctionalElement))
+                {
+                    AllowTag = Enum.GetValues(typeof(FunctionElementType));
+                }
                 else
                 {
                     ObjectTag tag = PropertyConstraint.GetPropertyConstraint<ObjectTag>(lst.GetListType());
@@ -247,5 +251,6 @@ namespace UISEditor.View
         {
             ShowModalDialog(false);
         }
+        
     }
 }

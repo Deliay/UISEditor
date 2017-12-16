@@ -91,7 +91,7 @@ namespace UISEditor.Bridge
     {
         public override bool CanCovertFrom(Type target)
         {
-            return target == typeof(double);
+            return target == typeof(string) || target == typeof(double);
         }
 
         public override UISNumber ConvertFrom(object value)
@@ -100,16 +100,20 @@ namespace UISEditor.Bridge
             {
                 return new UISNumber(v);
             }
+            else if(double.TryParse(value.ToString(), out double val))
+            {
+                return new UISNumber(val);
+            }
             else return null;
         }
 
         public override object ConvertTo(UISNumber instance, Type target)
         {
-            return instance.Number;
+            return instance?.Number ?? 0;
         }
     }
 
-    public class UISAnimationNameConverter : TypeConverter
+    public class UISAnimationNameConverter : CollectionConverter
     {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) => true;
 
@@ -120,6 +124,29 @@ namespace UISEditor.Bridge
         public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
         {
             return false;
+        }
+
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        {
+            return sourceType == typeof(string);
+        }
+
+        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+        {
+            if (value is string v)
+            {
+                return UISObjectTree.Instance.GetAnimations().FirstOrDefault(p => p.ElementName == v);
+            }
+            else return null;
+        }
+
+        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+        {
+            if (value is UISAnimationElement v)
+            {
+                return v.ElementName;
+            }
+            else return null;
         }
     }
 }

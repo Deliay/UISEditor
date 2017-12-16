@@ -5,9 +5,12 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using UISEditor.Bridge;
 using UISEditor.Data.Lexical;
+using UISEditor.View;
 
 namespace UISEditor.Data
 {
@@ -363,9 +366,9 @@ namespace UISEditor.Data
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISAnimationTime : UISLiteralValue
     {
-        [TypeConverter(typeof(ExpandableObjectConverter))]
+        [TypeConverter(typeof(UISNumberConverter))]
         public UISNumber StartTime { get; set; }
-        [TypeConverter(typeof(ExpandableObjectConverter))]
+        [TypeConverter(typeof(UISNumberConverter))]
         public UISNumber EndTime { get; set; }
         public bool IsAdd { get; set; }
         public UISAnimationTime(UISNumber start, UISNumber end, bool add = false) : base(ValueType.TIME)
@@ -393,9 +396,9 @@ namespace UISEditor.Data
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class UISAnimationRepeat : UISLiteralValue
     {
-        [TypeConverter(typeof(ExpandableObjectConverter))]
+        [TypeConverter(typeof(UISNumberConverter))]
         public UISNumber RepeatCount { get; set; }
-        [TypeConverter(typeof(ExpandableObjectConverter))]
+        [TypeConverter(typeof(UISNumberConverter))]
         public UISNumber RepeatTime { get; set; }
         public bool Repeat { get; set; }
         public UISAnimationRepeat(UISNumber repeatCount, UISNumber repeatTime, bool isLoop) : base(ValueType.ANIMATE_REPEAT)
@@ -450,7 +453,7 @@ namespace UISEditor.Data
     {
         [TypeConverter(typeof(UISAnimationNameConverter))]
         public UISAnimationElement TargetAnimation { get; set; }
-        [TypeConverter(typeof(ExpandableObjectConverter))]
+        [TypeConverter(typeof(UISNumberConverter))]
         public UISNumber Delay { get; set; }
         public UISMotion(UISAnimationElement element) : base(ValueType.MOTION)
         {
@@ -637,7 +640,7 @@ namespace UISEditor.Data
     /// <para>The normalize property implement for elements</para>
     /// </summary>
     [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class UISProperty : UISObject
+    public class UISProperty : UISRenderableObject
     {
         [Category("Element")]
         public Property Property { get; set; }
@@ -655,6 +658,21 @@ namespace UISEditor.Data
             return string.Join("=", Property.ToString(), Value.CombineValue());
         }
         public override string ObjectTreeName() => $"{Property.ToString()}";
+
+        public override FrameworkElement CreateRenderObject(UISObjectTree layeredObjectTree)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void OnDataChange(FrameworkElement element)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void OnRefreshRequest(FrameworkElement elemen)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -909,12 +927,19 @@ namespace UISEditor.Data
         {
             foreach (var item in lists)
             {
-                this.list.Add(item);
+                this.Add(item);
             }
         }
 
         public void Add(T item)
         {
+            var last = list.LastOrDefault();
+            if (last != null)
+            {
+                item.PrevObject = last;
+                last.NextObject = item;
+            }
+            item.Parent = this;
             this.list.Add(item);
         }
 
@@ -966,6 +991,25 @@ namespace UISEditor.Data
         public override string ObjectTreeName() => "#Comment";
     }
 
+    public abstract class UISRenderableObject : UISObject
+    {
+        public UISRenderableObject(ObjectTag tokenTag) : base(tokenTag)
+        {
+        }
+
+        public abstract FrameworkElement CreateRenderObject(UISObjectTree layeredObjectTree);
+        public abstract void OnDataChange(FrameworkElement elemen);
+        public abstract void OnRefreshRequest(FrameworkElement elemen);
+    }
+
+    public interface IRenderPropertyNoify
+    {
+        FrameworkElement CreateRenderObject();
+        void OnDataChange(FrameworkElement element);
+        void OnRefresh(FrameworkElement element);
+
+    }
+
     /// <summary>
     /// Base UIS Object for AST Tree
     /// </summary>
@@ -974,6 +1018,9 @@ namespace UISEditor.Data
         [Category("Element")]
         public ObjectTag TokenTag { get; protected set; }
         public abstract string ObjectTreeName();
+        public UISObject PrevObject { get; set; }
+        public UISObject NextObject { get; set; }
+        public UISObject Parent { get; set; }
         public UISObject(ObjectTag tokenTag)
         {
             TokenTag = tokenTag;
