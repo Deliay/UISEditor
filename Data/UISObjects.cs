@@ -14,7 +14,7 @@ using UISEditor.View;
 
 namespace UISEditor.Data
 {
-    public static class PropertyConstraint
+    public static partial class PropertyConstraint
     {
         static PropertyConstraint()
         {
@@ -105,6 +105,8 @@ namespace UISEditor.Data
             AddPropertyConstraint(ObjectTag.Predefined, "");
             AddPropertyConstraint(ObjectTag.Custom, "_");
             AddPropertyConstraint(ObjectTag.AnimationProeprty, "!");
+
+            AddConstraint();
         }
 
         private static Dictionary<object, LinkedList<object>> Constraint = new Dictionary<object, LinkedList<object>>();
@@ -231,6 +233,7 @@ namespace UISEditor.Data
         }
 
         public override string ObjectTreeName() => CombineValue();
+        
     }
 
     [TypeConverter(typeof(UISPercentConverter))]
@@ -265,6 +268,11 @@ namespace UISEditor.Data
             return $"{Number.ToString()}";
         }
         public override string ObjectTreeName() => CombineValue();
+
+        public static implicit operator double(UISNumber a)
+        {
+            return a.Number;
+        }
     }
 
     [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -411,8 +419,8 @@ namespace UISEditor.Data
         public override string CombineValue()
         {
             string loop = Repeat ? "r" : string.Empty;
-            string repperfix = RepeatTime.Number > 0 ? "(" : "";
-            string repsuffix = RepeatTime.Number > 0 ? ")" : "";
+            string repperfix = RepeatTime > 0 ? "(" : "";
+            string repsuffix = RepeatTime > 0 ? ")" : "";
             string count = (RepeatTime.Number > 0 ? $",{RepeatTime}" : string.Empty);
 
             return $"{loop}{repperfix}{RepeatCount.CombineValue()}{count}{repsuffix}";
@@ -640,7 +648,7 @@ namespace UISEditor.Data
     /// <para>The normalize property implement for elements</para>
     /// </summary>
     [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class UISProperty : UISRenderableObject
+    public class UISProperty : UISObject, IRenderPropertyNoify
     {
         [Category("Element")]
         public Property Property { get; set; }
@@ -659,19 +667,9 @@ namespace UISEditor.Data
         }
         public override string ObjectTreeName() => $"{Property.ToString()}";
 
-        public override FrameworkElement CreateRenderObject(UISObjectTree layeredObjectTree)
+        public void RenderTo(FrameworkElement element)
         {
-            throw new NotImplementedException();
-        }
-
-        public override void OnDataChange(FrameworkElement element)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void OnRefreshRequest(FrameworkElement elemen)
-        {
-            throw new NotImplementedException();
+            
         }
     }
 
@@ -716,7 +714,7 @@ namespace UISEditor.Data
     /// <para>Manager per-defined element</para>
     /// </summary>
     [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class UISPredefineElement : UISElement<UISProperty>
+    public class UISPredefineElement : UISRenderableElement<UISProperty>
     {
         [Category("Index")]
         public int Index { get; set; } = 0;
@@ -732,6 +730,28 @@ namespace UISEditor.Data
             return base.ElementCombineValue();
         }
         public override string ObjectTreeName() => $"{ElemType.ToString()}";
+
+        public override FrameworkElement CreateRenderObject(UISObjectTree layeredObjectTree)
+        {
+            UISProperty type = this.FindProperty(Property.TYPE);
+            switch ((type.Value as UISNumber).Number)
+            {
+                case 1:
+
+                default:
+                    break;
+            }
+        }
+
+        public override void OnDataChange(FrameworkElement elemen)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void OnRefreshRequest(FrameworkElement elemen)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 
@@ -760,6 +780,33 @@ namespace UISEditor.Data
         }
 
         public override string ObjectTreeName() => $"{ElementName}";
+    }
+
+    /// <summary>
+    /// A Renderable object collection
+    /// <para>UISObjectTree Create renderable object via <see cref="CreateRenderObject(UISObjectTree)"/></para>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public abstract class UISRenderableElement<T> : UISElement<T> where T : UISObject
+    {
+        public UISRenderableElement(ObjectTag tokenTag, string ElementName, bool isMultiSelect = false) : base(tokenTag, ElementName, isMultiSelect)
+        {
+        }
+
+        public abstract FrameworkElement CreateRenderObject(UISObjectTree layeredObjectTree);
+        public abstract void OnDataChange(FrameworkElement elemen);
+        public abstract void OnRefreshRequest(FrameworkElement elemen);
+        public T FindProperty(Property prop)
+        {
+            return this.FirstOrDefault(p => p is UISProperty f && f.Property == prop);
+        }
+    }
+
+    public interface IRenderPropertyNoify
+    {
+        //    Action<FrameworkElement> DataChange { get; set; }
+        //    Action<FrameworkElement> RefreshRequest { get; set; }
+        void RenderTo(FrameworkElement element);
     }
 
     /// <summary>
@@ -989,25 +1036,6 @@ namespace UISEditor.Data
         public override string CombineValue() => $"#{Comment}";
 
         public override string ObjectTreeName() => "#Comment";
-    }
-
-    public abstract class UISRenderableObject : UISObject
-    {
-        public UISRenderableObject(ObjectTag tokenTag) : base(tokenTag)
-        {
-        }
-
-        public abstract FrameworkElement CreateRenderObject(UISObjectTree layeredObjectTree);
-        public abstract void OnDataChange(FrameworkElement elemen);
-        public abstract void OnRefreshRequest(FrameworkElement elemen);
-    }
-
-    public interface IRenderPropertyNoify
-    {
-        FrameworkElement CreateRenderObject();
-        void OnDataChange(FrameworkElement element);
-        void OnRefresh(FrameworkElement element);
-
     }
 
     /// <summary>
