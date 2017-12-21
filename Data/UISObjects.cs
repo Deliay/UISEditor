@@ -10,6 +10,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using UISEditor.Bridge;
 using UISEditor.Data.Lexical;
+using UISEditor.Render;
 using UISEditor.View;
 
 namespace UISEditor.Data
@@ -131,7 +132,7 @@ namespace UISEditor.Data
                     return val;
                 }
             }
-            return default(T);
+            return default;
         }
     }
 
@@ -648,7 +649,7 @@ namespace UISEditor.Data
     /// <para>The normalize property implement for elements</para>
     /// </summary>
     [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class UISProperty : UISObject, IRenderPropertyNoify
+    public class UISProperty : UISObject
     {
         [Category("Element")]
         public Property Property { get; set; }
@@ -666,11 +667,6 @@ namespace UISEditor.Data
             return string.Join("=", Property.ToString(), Value.CombineValue());
         }
         public override string ObjectTreeName() => $"{Property.ToString()}";
-
-        public void RenderTo(FrameworkElement element)
-        {
-            
-        }
     }
 
     [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -714,7 +710,7 @@ namespace UISEditor.Data
     /// <para>Manager per-defined element</para>
     /// </summary>
     [TypeConverter(typeof(ExpandableObjectConverter))]
-    public class UISPredefineElement : UISRenderableElement<UISProperty>
+    public class UISPredefineElement : UISElement<UISProperty>
     {
         [Category("Index")]
         public int Index { get; set; } = 0;
@@ -730,28 +726,6 @@ namespace UISEditor.Data
             return base.ElementCombineValue();
         }
         public override string ObjectTreeName() => $"{ElemType.ToString()}";
-
-        public override FrameworkElement CreateRenderObject(UISObjectTree layeredObjectTree)
-        {
-            UISProperty type = this.FindProperty(Property.TYPE);
-            switch ((type.Value as UISNumber).Number)
-            {
-                case 1:
-
-                default:
-                    break;
-            }
-        }
-
-        public override void OnDataChange(FrameworkElement elemen)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void OnRefreshRequest(FrameworkElement elemen)
-        {
-            throw new NotImplementedException();
-        }
     }
 
 
@@ -783,33 +757,6 @@ namespace UISEditor.Data
     }
 
     /// <summary>
-    /// A Renderable object collection
-    /// <para>UISObjectTree Create renderable object via <see cref="CreateRenderObject(UISObjectTree)"/></para>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public abstract class UISRenderableElement<T> : UISElement<T> where T : UISObject
-    {
-        public UISRenderableElement(ObjectTag tokenTag, string ElementName, bool isMultiSelect = false) : base(tokenTag, ElementName, isMultiSelect)
-        {
-        }
-
-        public abstract FrameworkElement CreateRenderObject(UISObjectTree layeredObjectTree);
-        public abstract void OnDataChange(FrameworkElement elemen);
-        public abstract void OnRefreshRequest(FrameworkElement elemen);
-        public T FindProperty(Property prop)
-        {
-            return this.FirstOrDefault(p => p is UISProperty f && f.Property == prop);
-        }
-    }
-
-    public interface IRenderPropertyNoify
-    {
-        //    Action<FrameworkElement> DataChange { get; set; }
-        //    Action<FrameworkElement> RefreshRequest { get; set; }
-        void RenderTo(FrameworkElement element);
-    }
-
-    /// <summary>
     /// A generic collection for top-level element
     /// </summary>
     /// <typeparam name="T"></typeparam>
@@ -835,13 +782,21 @@ namespace UISEditor.Data
         [Category("Multi")]
         [TypeConverter(typeof(CollectionConverter))]
         public UISList<UISNumber> Indexs { get; set; } = new UISList<UISNumber>();
+        
+        public IEnumerable<TC> FindType<TC>() where TC : UISObject => this.Select(p => p is TC f ? f : null);
+
+        public TC FindType<TC>(Predicate<TC> pred) where TC : UISObject => FindType<TC>().FirstOrDefault(p => pred(p));
+
+        public UISProperty FindProperty(Property prop) => FindType<UISProperty>(p => p is UISProperty f && f.Property == prop);
+
+        public UISAnimation FindAnimation(AnimationName animation) => FindType<UISAnimation>(p => p is UISAnimation f && f.Name == animation);
 
         /// <summary>
         /// Base element ctor
         /// </summary>
         /// <param name="tokenTag">Which element</param>
         /// <param name="ElementName">element name</param>
-        /// <param name="isMultiSelect">is or not a multiselect element</param>
+        /// <param name="isMultiSelect">is or not a multiselect element</param>j
         public UISElement(ObjectTag tokenTag, string ElementName, bool isMultiSelect = false)
         {
             this.ObjectType = tokenTag;

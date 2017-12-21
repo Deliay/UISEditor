@@ -9,6 +9,7 @@ namespace UISEditor.Data.Parser
 {
     public static partial class UISParser
     {
+        [Serializable]
         public class TokenWrongException : UISRuntimeException
         {
             public TokenWrongException(Token token, params Tag[] except) : base($"{token.TokenTag.ToString()} should {except[0]}")
@@ -16,6 +17,7 @@ namespace UISEditor.Data.Parser
 
             }
         }
+        [Serializable]
         public class ParseException : UISRuntimeException
         {
             public ParseException(Word token, string expect) : base($"{token.Lexeme} should {expect}")

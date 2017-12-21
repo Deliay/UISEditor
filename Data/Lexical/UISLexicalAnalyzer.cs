@@ -12,6 +12,7 @@ namespace UISEditor.Data.Lexical
     /// </summary>
     public class UISLoader
     {
+        [Serializable]
         public class LecicalExpection : Exception
         {
             public LecicalExpection(string message) : base(message) { }
