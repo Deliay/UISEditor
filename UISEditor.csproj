@@ -68,6 +68,7 @@
     <Compile Include="Controller\MainController.cs" />
     <Compile Include="Data\UISPropertyTags.cs" />
     <Compile Include="Data\UISRuntimeException.cs" />
+    <Compile Include="Render\RenderError.cs" />
     <Compile Include="Render\RenderPropertyConstraint.cs" />
     <Compile Include="Render\UISRenderTypeFactory.cs" />
     <Compile Include="ViewModel\DialogResource.cs" />

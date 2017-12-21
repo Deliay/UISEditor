@@ -27,6 +27,9 @@ namespace UISEditor.View
 
         public string FilePath { get; private set; }
         public string FileName { get => Path.GetFileName(FilePath); }
+        public string BasePath { get => FilePath.Substring(0, FilePath.LastIndexOf(FileName)); }
+
+        public bool ExistFile(string filename) => File.Exists(Path.Combine(BasePath, filename));
 
         public IEnumerator<UISObject> GetEnumerator() => uisOriginTree.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => uisOriginTree.GetEnumerator();
