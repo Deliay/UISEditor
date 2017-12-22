@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using UISEditor.Controller;
 using UISEditor.Data;
+using UISEditor.Render;
 using UISEditor.ViewModel;
 
 namespace UISEditor.View
@@ -38,6 +39,7 @@ namespace UISEditor.View
                     sw.onSwitch();
                 }
             };
+            RenderManager.RenderLayer = this.RenderLayer;
         }
 
         public void onSwitch()
@@ -63,11 +65,11 @@ namespace UISEditor.View
         //    public override string ToString() => Name;
         //}
 
-        public class PropertyWrapper
-        {
-            public string Name { get; set; }
-            public object Value { get; set; }
-        }
+        //public class PropertyWrapper
+        //{
+        //    public string Name { get; set; }
+        //    public object Value { get; set; }
+        //}
 
         public class ErrorWrapper
         {
