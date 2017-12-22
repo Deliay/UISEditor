@@ -787,7 +787,7 @@ namespace UISEditor.Data
 
         public TC FindType<TC>(Predicate<TC> pred) where TC : UISObject => FindType<TC>().FirstOrDefault(p => pred(p));
 
-        public UISProperty FindProperty(Property prop) => FindType<UISProperty>(p => p is UISProperty f && f.Property == prop);
+        public UISProperty FindProperty(Property prop) => FindType<UISProperty>(p => p.Property == prop);
 
         public UISAnimation FindAnimation(AnimationName animation) => FindType<UISAnimation>(p => p is UISAnimation f && f.Name == animation);
 

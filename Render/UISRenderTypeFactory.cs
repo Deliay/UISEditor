@@ -52,7 +52,7 @@ namespace UISEditor.Render
         protected UISNumber OPACITY { get; set; }
         protected UISNumber ZINDEX { get; set; }
 
-        protected TC FindPropertyDefine<TC>(Property prop) where TC : UISValue => RenderProperty.FindProperty(prop) as TC;
+        protected TC FindPropertyDefine<TC>(Property prop) where TC : UISValue => RenderProperty.FindProperty(prop)?.Value as TC;
 
         protected UISElement<T> RenderProperty { get; }
         public Canvas RenderedObject { get; } = new Canvas();
@@ -79,6 +79,7 @@ namespace UISEditor.Render
         {
             RenderProperty = contianer;
             _Refresh();
+            RenderManager.RenderLayer.Children.Add(RenderedObject);
         }
 
         protected void RefreshProperties()
@@ -122,7 +123,7 @@ namespace UISEditor.Render
     public class UISCustomImageElementFactory : UISCustomRenderable<UISProperty>
     {
         protected UISNumber FLIP { get; set; }
-        private UISCustomImageElementFactory(UISCustomElement contianer) : base(contianer) { Refresh(); }
+        public UISCustomImageElementFactory(UISCustomElement contianer) : base(contianer) { }
         
         public override void Refresh()
         {
