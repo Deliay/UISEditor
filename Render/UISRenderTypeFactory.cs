@@ -9,6 +9,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using UISEditor.Data;
 using UISEditor.View;
+using static UISEditor.Data.PropertyConstraint;
 
 namespace UISEditor.Render
 {
@@ -42,27 +43,65 @@ namespace UISEditor.Render
 
     public abstract class UISRenderableElement<T> where T : UISObject
     {
-        protected UISFileName TEX { get => FindPropertyDefine<UISFileName>(Property.TEX); }
-        protected UISVector SIZE { get => FindPropertyDefine<UISVector>(Property.SIZE); }
-        protected UISVector POS { get => FindPropertyDefine<UISVector>(Property.POS); }
-        protected UISNumber ANCHOR { get => FindPropertyDefine<UISNumber>(Property.ANCHOR); }
-        protected UISHexColor COLOR { get => FindPropertyDefine<UISHexColor>(Property.COLOR); }
-        protected UISNumber ROTATE { get => FindPropertyDefine<UISNumber>(Property.ROTATE); }
-        protected UISNumber OPACITY { get => FindPropertyDefine<UISNumber>(Property.OPACITY); }
-        protected UISNumber ZINDEX { get => FindPropertyDefine<UISNumber>(Property.ZINDEX); }
+        protected UISFileName TEX { get; set; }
+        protected UISVector SIZE { get; set; }
+        protected UISVector POS { get; set; }
+        protected UISNumber ANCHOR { get; set; }
+        protected UISHexColor COLOR { get; set; }
+        protected UISNumber ROTATE { get; set; }
+        protected UISNumber OPACITY { get; set; }
+        protected UISNumber ZINDEX { get; set; }
 
         protected TC FindPropertyDefine<TC>(Property prop) where TC : UISValue => RenderProperty.FindProperty(prop) as TC;
 
         protected UISElement<T> RenderProperty { get; }
-        public FrameworkElement RenderedObject { get; set; } = null;
+        public Canvas RenderedObject { get; } = new Canvas();
+
+        protected void ApplyBaseRenderableProperty()
+        {
+            //var list = RenderProperty.FindType<UISProperty>();
+            //foreach (var item in list)
+            //{
+            //    ConstriantPropertyLoader(item.Property)(this.RenderedObject, item.Value);
+            //}
+
+            if (TEX != null) ConstriantPropertyLoader(Property.TEX)(this.RenderedObject, TEX);
+            if (SIZE != null) ConstriantPropertyLoader(Property.SIZE)(this.RenderedObject, SIZE);
+            if (POS != null) ConstriantPropertyLoader(Property.POS)(this.RenderedObject, POS);
+            if (ANCHOR != null) ConstriantPropertyLoader(Property.ANCHOR)(this.RenderedObject, ANCHOR);
+            if (COLOR != null) ConstriantPropertyLoader(Property.COLOR)(this.RenderedObject, COLOR);
+            if (ROTATE != null) ConstriantPropertyLoader(Property.ROTATE)(this.RenderedObject, ROTATE);
+            if (OPACITY != null) ConstriantPropertyLoader(Property.OPACITY)(this.RenderedObject, OPACITY);
+            if (ZINDEX != null) ConstriantPropertyLoader(Property.ZINDEX)(this.RenderedObject, ZINDEX);
+        }
 
         public UISRenderableElement(UISElement<T> contianer)
         {
             RenderProperty = contianer;
+            _Refresh();
         }
 
-        public abstract FrameworkElement CreateRenderObject();
+        protected void RefreshProperties()
+        {
+            TEX = FindPropertyDefine<UISFileName>(Property.TEX);
+            SIZE = FindPropertyDefine<UISVector>(Property.SIZE);
+            POS = FindPropertyDefine<UISVector>(Property.POS);
+            ANCHOR = FindPropertyDefine<UISNumber>(Property.ANCHOR);
+            COLOR = FindPropertyDefine<UISHexColor>(Property.COLOR);
+            ROTATE = FindPropertyDefine<UISNumber>(Property.ROTATE);
+            OPACITY = FindPropertyDefine<UISNumber>(Property.OPACITY);
+            ZINDEX = FindPropertyDefine<UISNumber>(Property.ZINDEX);
+        }
+        
+        public abstract void ApplyProperty();
         public abstract void Refresh();
+
+        private void _Refresh()
+        {
+            RefreshProperties();
+            Refresh();
+        }
+
     }
 
     /// <summary>
@@ -80,33 +119,23 @@ namespace UISEditor.Render
 
     }
 
-    public static class UISPropertyApplies
-    {
-        public static 
-    }
-
     public class UISCustomImageElementFactory : UISCustomRenderable<UISProperty>
     {
-        protected UISNumber FLIP { get => FindPropertyDefine<UISNumber>(Property.FLIP); }
-        private UISCustomImageElementFactory(UISCustomElement contianer) : base(contianer) {}
+        protected UISNumber FLIP { get; set; }
+        private UISCustomImageElementFactory(UISCustomElement contianer) : base(contianer) { Refresh(); }
+        
+        public override void Refresh()
+        {
+            FLIP = FindPropertyDefine<UISNumber>(Property.FLIP);
+        }
 
-        public override FrameworkElement CreateRenderObject()
+        public override void ApplyProperty()
         {
             if (this.TEX?.FileName?.Length != 0)
             {
-                //存在指定纹理
-                if (UISObjectTree.Instance.ExistFile(this.TEX.FileName))
-                {
-
-                }
-                else throw new MissingRenderImageException(this.TEX.FileName);
+                if (FLIP != null) ConstriantPropertyLoader(Property.FLIP)(this.RenderedObject, FLIP);
             }
             else throw new MissingTEXPropertyException(this.RenderProperty.ElementName);
-        }
-
-        public override void Refresh()
-        {
-            throw new NotImplementedException();
         }
     }
    
