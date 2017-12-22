@@ -17,13 +17,26 @@ namespace UISEditor.Render
         {
             foreach (var item in UISObjectTree.Instance)
             {
-
+                if(item is UISList)
+                {
+                    Render(item as UISList<UISObject>);
+                }
             }
         }
 
-        public static void Render<T>(UISList<T> list) where T : UISObject
+        public static void Render<T>(IEnumerable<T> list) where T : UISObject
         {
-
+            foreach (var item in list)
+            {
+                if(item is UISCustomElement e)
+                {
+                    new UISCustomImageElementFactory(e);
+                }
+                else if(item is UISList)
+                {
+                    Render(item as IEnumerable<UISObject>);
+                }
+            }
         }
     }
 

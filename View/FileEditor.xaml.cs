@@ -40,6 +40,7 @@ namespace UISEditor.View
                 }
             };
             RenderManager.RenderLayer = this.RenderLayer;
+            RenderManager.Render();
         }
 
         public void onSwitch()
