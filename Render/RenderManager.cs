@@ -9,9 +9,11 @@ using UISEditor.View;
 
 namespace UISEditor.Render
 {
-    public class RenderManager
+    public static class RenderManager
     {
         public static Canvas RenderLayer;
+
+        private static Dictionary<UISList, UISRenderableElement> renderData = new Dictionary<UISList, UISRenderableElement>();
 
         public static void Render()
         {
@@ -30,7 +32,15 @@ namespace UISEditor.Render
             {
                 if(item is UISCustomElement e)
                 {
-                    PropertyConstraint.ConstriantCustomElementGenerator((e.FindProperty(Property.TYPE).Value as UISNumber).Number)(e);
+                    if(renderData.ContainsKey(e))
+                    {
+                        renderData[e].RefreshProperties();
+                        renderData[e].ApplyProperties();
+                    }
+                    else
+                    {
+                        renderData.Add(e, PropertyConstraint.ConstriantCustomElementGenerator((e.FindProperty(Property.TYPE).Value as UISNumber).Number)(e));
+                    }
                 }
                 else if(item is UISList)
                 {
