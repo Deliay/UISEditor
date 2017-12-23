@@ -112,6 +112,23 @@ namespace UISEditor.Data
 
         private static Dictionary<object, LinkedList<object>> Constraint = new Dictionary<object, LinkedList<object>>();
 
+        /// <summary>
+        /// <para>!!!WARNING!!! This method will remove all your constriant in type <see cref="<typeparamref name="T"/>"/></para>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="prop"></param>
+        /// <param name="value"></param>
+        public static void ResetAllPropertyConstraint<T>(object prop, T value)
+        {
+            if (!Constraint.ContainsKey(prop)) Constraint.Add(prop, new LinkedList<object>());
+            if (!Constraint[prop].Contains(value)) return;
+            else
+            {
+                Constraint[prop].Clear();
+                Constraint[prop].AddLast(value);
+            }
+        }
+
         public static bool AddPropertyConstraint<T>(object prop, T value)
         {
             if (!Constraint.ContainsKey(prop)) Constraint.Add(prop, new LinkedList<object>());
@@ -121,6 +138,12 @@ namespace UISEditor.Data
                 Constraint[prop].AddLast(value);
                 return true;
             }
+        }
+
+        public static bool ExistPropertyConstraint<T>(object prop, T value)
+        {
+            if (!Constraint.ContainsKey(prop)) return false;
+            return Constraint[prop].Contains(value);
         }
 
         public static T GetPropertyConstraint<T>(object prop) 
@@ -361,7 +384,7 @@ namespace UISEditor.Data
         public UISSimpleExpr(UISLiteralValue firstOph, UISLiteralValue secondOph, bool isPlus = true) : base(ValueType.SIMPLE_EXPR)
         {
             First = firstOph; Second = secondOph;
-
+            IsAdd = isPlus;
         }
 
         public override string CombineValue()
