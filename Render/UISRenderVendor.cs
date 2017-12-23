@@ -213,4 +213,21 @@ namespace UISEditor.Render
         }
     }
 
+    public class UISCustomScale3Element : UISCustomRenderable
+    {
+        public UISCustomScale3Element(UISElement<UISProperty> contianer) : base(contianer)
+        {
+        }
+
+        protected override void ApplyProperty()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void Refresh()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
 }

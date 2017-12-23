@@ -61,11 +61,15 @@ namespace UISEditor.Render
         public static IEnumerable<BitmapImage> LoadFrameImageResource(string perfix, int start, int end)
         {
             string fixedPerfix = $"{perfix}-";
-            string tempFile = Directory.EnumerateFiles(UISObjectTree.Instance.BasePath).ToList().FirstOrDefault(p => Path.GetFileNameWithoutExtension(p).StartsWith(fixedPerfix));
+            string tempFile = Directory.EnumerateFiles(UISObjectTree.Instance.BasePath)
+                                       .ToList()
+                                       .FirstOrDefault(p => Path.GetFileNameWithoutExtension(p).StartsWith(fixedPerfix));
             string ext = tempFile != null ? Path.GetExtension(tempFile) : throw new FileNotFoundException($"{perfix}/{start}-{end}");
 
             List<BitmapImage> list = new List<BitmapImage>();
-            Enumerable.Range(start, end - start + 1).ToList().ForEach(x => list.Add(LoadBitmapResource(Path.Combine(UISObjectTree.Instance.BasePath, $"{fixedPerfix}{x}{ext}"))));
+            Enumerable.Range(start, end - start + 1)
+                        .ToList()
+                        .ForEach(x => list.Add(LoadBitmapResource(Path.Combine(UISObjectTree.Instance.BasePath, $"{fixedPerfix}{x}{ext}"))));
             return list;
         }
     }
