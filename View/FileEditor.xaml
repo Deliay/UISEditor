@@ -31,7 +31,7 @@
                         </Grid.ColumnDefinitions>
                         <DockPanel Grid.Column="0">
                             <Viewbox Stretch="Uniform" >
-                                <Canvas x:Name="RenderLayer" Height="9" Width="16" IsEnabled="False" VerticalAlignment="Center" HorizontalAlignment="Center" Background="Gray"></Canvas>
+                                <Canvas x:Name="RenderLayer" Height="720" Width="1280" IsEnabled="True" VerticalAlignment="Center" HorizontalAlignment="Center" Background="Gray"></Canvas>
                             </Viewbox>
                         </DockPanel>
                         <GridSplitter Grid.Column="1"/>
