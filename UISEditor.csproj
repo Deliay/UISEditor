@@ -69,6 +69,7 @@
     </ApplicationDefinition>
     <Compile Include="Bridge\ProeprtyCoverter.cs" />
     <Compile Include="Controller\MainController.cs" />
+    <Compile Include="Data\ParserPropertyConstraint.cs" />
     <Compile Include="Data\UISPropertyTags.cs" />
     <Compile Include="Data\UISRuntimeException.cs" />
     <Compile Include="Render\RenderError.cs" />
