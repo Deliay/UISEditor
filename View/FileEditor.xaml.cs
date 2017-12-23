@@ -192,6 +192,7 @@ namespace UISEditor.View
 
         private void PropertyValueChange(object s, System.Windows.Forms.PropertyValueChangedEventArgs e)
         {
+            RenderManager.Render();
             textEditor.Text = string.Join("", UISObjectTree.Instance.Select(p => p.CombineValue()));
         }
 
