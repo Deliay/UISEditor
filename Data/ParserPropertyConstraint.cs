@@ -109,10 +109,13 @@ namespace UISEditor.Data
         public static void ResetAllPropertyConstraint<T>(object prop, T value)
         {
             if (!Constraint.ContainsKey(prop)) Constraint.Add(prop, new LinkedList<object>());
-            if (!Constraint[prop].Contains(value)) return;
-            else
+            if (!Constraint[prop].Contains(value))
             {
-                Constraint[prop].Clear();
+                Constraint[prop]
+                    .Where(p => p.GetType() == typeof(T))
+                    .ToList()
+                    .ForEach(f => Constraint[prop].Remove(f));
+
                 Constraint[prop].AddLast(value);
             }
         }
@@ -134,9 +137,22 @@ namespace UISEditor.Data
             return Constraint[prop].Contains(value);
         }
 
-        public static bool ExistConstraint<T>(object prop, T value)
+        public static bool ExistConstraint(object prop)
         {
             return Constraint.ContainsKey(prop);
+        }
+
+        public static bool ExistConstraint<T>(object prop)
+        {
+            if (!Constraint.ContainsKey(prop)) return false;
+            else
+            {
+                foreach (var item in Constraint[prop])
+                {
+                    if (item.GetType() == typeof(T)) return true;
+                }
+            }
+            return false;
         }
 
         public static T GetPropertyConstraint<T>(object prop) 
