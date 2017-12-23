@@ -75,7 +75,7 @@
     <Compile Include="Render\RenderManager.cs" />
     <Compile Include="Render\RenderPropertyConstraint.cs" />
     <Compile Include="Render\ResourceManager.cs" />
-    <Compile Include="Render\UISRenderTypeFactory.cs" />
+    <Compile Include="Render\UISRenderVendor.cs" />
     <Compile Include="ViewModel\DialogResource.cs" />
     <Compile Include="View\Dialog\CreateNode.xaml.cs">
       <DependentUpon>CreateNode.xaml</DependentUpon>
