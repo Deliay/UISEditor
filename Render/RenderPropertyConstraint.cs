@@ -24,6 +24,8 @@ namespace UISEditor.Data
 
         public static Func<object, Action<Canvas, UISValue>> ConstriantPropertyLoader = GetPropertyConstraint<Action<Canvas, UISValue>>;
 
+        public static Func<object, Func<UISCustomElement, UISCustomRenderable<UISProperty>>> ConstriantCustomElementGenerator = GetPropertyConstraint<Func<UISCustomElement, UISCustomRenderable<UISProperty>>>;
+
         public static void AddConstraint()
         {
             AddPropertyConstraint<Func<PixelDirection, UISLiteralValue, double>>(ValueType.NUMBER, NumberConvert);
@@ -39,6 +41,46 @@ namespace UISEditor.Data
             AddPropertyConstraint<Action<Canvas, UISValue>>(Property.OPACITY, OPACITY);
             AddPropertyConstraint<Action<Canvas, UISValue>>(Property.ZINDEX, ZINDEX);
             AddPropertyConstraint<Action<Canvas, UISValue>>(Property.FLIP, FLIP);
+            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.TEX, TEX);
+            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.TEXT, TEXT);
+            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.FSIZE, FSIZE);
+
+            AddPropertyConstraint<Func<UISCustomElement, UISCustomRenderable<UISProperty>>>(0.0d, (x) => new UISCustomImageElement(x));
+            AddPropertyConstraint<Func<UISCustomElement, UISCustomRenderable<UISProperty>>>(1.0d, (x) => new UISCustomTextElement(x));
+        }
+
+        private static void FSIZE(Canvas Layer, UISValue prop)
+        {
+            foreach (var item in Layer.Children)
+            {
+                if (item is Label a)
+                {
+                    a.FontSize = Cast<UISNumber>(prop).Number;
+                    break;
+                }
+            }
+        }
+
+        private static void TEXT(Canvas Layer, UISValue prop)
+        {
+            Label text = null;
+            foreach (var item in Layer.Children)
+            {
+                if(item is Label a)
+                {
+                    text = a;
+                    text.Content = Cast<UISText>(prop).Text;
+                    break;
+                }
+            }
+            if (text == null)
+            {
+                text = new Label
+                {
+                    Content = Cast<UISText>(prop).Text
+                };
+                Layer.Children.Add(text);
+            }
         }
 
         public static TSrc Cast<TSrc>(UISValue val) where TSrc : UISValue => val as TSrc;
@@ -58,7 +100,7 @@ namespace UISEditor.Data
 
         private static void FLIP(Canvas Layer, UISValue prop)
         {
-            if (Layer.RenderTransform == null) Layer.RenderTransform = new TransformGroup();
+            if (Layer.RenderTransform == null || Layer.RenderTransform.GetType() != typeof(TransformGroup)) Layer.RenderTransform = new TransformGroup();
             var mode = (int)Cast<UISNumber>(prop).Number;
             TransformGroup props = Layer.RenderTransform as TransformGroup;
             if (mode == 0)
@@ -161,7 +203,7 @@ namespace UISEditor.Data
 
         public static double FetchConstriantDirection(PixelDirection dir) => (dir == PixelDirection.Width ? RenderManager.RenderLayer.Width : RenderManager.RenderLayer.Height);
 
-        public static double PercentConvert(PixelDirection dir, UISLiteralValue pct) => FetchConstriantDirection(dir) * (pct as UISPercent).Percent;
+        public static double PercentConvert(PixelDirection dir, UISLiteralValue pct) => FetchConstriantDirection(dir) * ((pct as UISPercent).Percent / 100);
 
         public static double ExprConvert(PixelDirection dir, UISLiteralValue val)
         {

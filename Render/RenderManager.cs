@@ -30,7 +30,7 @@ namespace UISEditor.Render
             {
                 if(item is UISCustomElement e)
                 {
-                    new UISCustomImageElementFactory(e);
+                    PropertyConstraint.ConstriantCustomElementGenerator((e.FindProperty(Property.TYPE).Value as UISNumber).Number)(e);
                 }
                 else if(item is UISList)
                 {
