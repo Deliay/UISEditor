@@ -39,7 +39,7 @@ namespace UISEditor.Render
                     }
                     else
                     {
-                        renderData.Add(e, PropertyConstraint.ConstriantCustomElementGenerator((e.FindProperty(Property.TYPE).Value as UISNumber).Number)(e));
+                        renderData.Add(e, e.ConstriantToRenderableType());
                     }
                 }
                 else if(item is UISList)

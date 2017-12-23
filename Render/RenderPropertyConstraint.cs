@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using UISEditor.Render;
 using UISEditor.View;
 
@@ -26,6 +29,23 @@ namespace UISEditor.Data
 
         public static Func<object, Func<UISCustomElement, UISCustomRenderable>> ConstriantCustomElementGenerator = GetPropertyConstraint<Func<UISCustomElement, UISCustomRenderable>>;
 
+        public static UISCustomRenderable ConstriantToRenderableType(this UISCustomElement element)
+        {
+            return ConstriantCustomElementGenerator(element.FindProperty(Property.TYPE).Value.Cast<UISNumber>().Number)(element);
+        }
+
+        public static T Search<T>(this UIElementCollection col)
+        {
+            foreach (var item in col)
+            {
+                if(item is T el)
+                {
+                    return el;
+                }
+            }
+            return default;
+        }
+
         private static void AddConstraint()
         {
             AddPropertyConstraint<Func<PixelDirection, UISLiteralValue, double>>(ValueType.NUMBER, NumberConvert);
@@ -44,9 +64,13 @@ namespace UISEditor.Data
             AddPropertyConstraint<Action<Canvas, UISValue>>(Property.TEX, TEX);
             AddPropertyConstraint<Action<Canvas, UISValue>>(Property.TEXT, TEXT);
             AddPropertyConstraint<Action<Canvas, UISValue>>(Property.FSIZE, FSIZE);
+            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.FRAME, FRAME);
+            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.INTERVAL, INTERVAL);
 
             AddPropertyConstraint<Func<UISCustomElement, UISCustomRenderable>>(0.0d, (x) => new UISCustomImageElement(x));
             AddPropertyConstraint<Func<UISCustomElement, UISCustomRenderable>>(1.0d, (x) => new UISCustomTextElement(x));
+            AddPropertyConstraint<Func<UISCustomElement, UISCustomRenderable>>(2.0d, (x) => new UISCustomSoildColorElement(x));
+            AddPropertyConstraint<Func<UISCustomElement, UISCustomRenderable>>(3.0d, (x) => new UISCustomAnimationElement(x));
         }
 
         private static void FSIZE(Canvas Layer, UISValue prop)
@@ -83,7 +107,12 @@ namespace UISEditor.Data
             }
         }
 
-        public static TSrc Cast<TSrc>(UISValue val) where TSrc : UISValue => val as TSrc;
+        public static TSrc Cast<TSrc>(this UISValue val) where TSrc : UISValue => val as TSrc;
+
+        public static void ApplyTo<T>(this T val, Canvas To, Property As) where T : UISValue
+        {
+            ConstriantPropertyLoader(As)(To, val);
+        }
 
         private static void TEX(Canvas Layer, UISValue prop)
         {
@@ -196,6 +225,63 @@ namespace UISEditor.Data
         private static void OPACITY(Canvas Layer, UISValue prop) => Layer.Opacity = Cast<UISNumber>(prop).Number;
 
         private static void ZINDEX(Canvas Layer, UISValue prop) => Panel.SetZIndex(Layer, (int)Cast<UISNumber>(prop).Number);
+
+        private static void INTERVAL(Canvas Layer, UISValue prop)
+        {
+            var timer = GetPropertyConstraint<DispatcherTimer>(Layer);
+            if(timer != null)
+            {
+                timer.Interval = TimeSpan.FromMilliseconds(prop.Cast<UISNumber>().Number);
+                timer.Stop();
+                timer.Start();
+            }
+            else
+            {
+                AddPropertyConstraint(Layer, prop.Cast<UISNumber>().Number);
+            }
+        }
+
+        private static void FRAME(Canvas Layer, UISValue prop)
+        {
+            //Load frames image first
+            var frame = prop.Cast<UISFrameFile>();
+            var imgs = ResourceManager.LoadFrameImageResource(frame.FileName, frame.StartFrame, frame.EndFrame).ToArray();
+            if(!(Layer.Background is ImageBrush))
+            {
+                Layer.Background = new ImageBrush();
+            }
+
+            Storyboard sb = Layer.Children.Search<Storyboard>();
+            if (sb == null) sb = new Storyboard();
+            DispatcherTimer timer = null;
+            if (ExistConstraint(Layer))
+            {
+                timer = GetPropertyConstraint<DispatcherTimer>(Layer);
+            }
+            else
+            {
+
+                timer = new DispatcherTimer(DispatcherPriority.Normal)
+                {
+                    //Disable when not set interval
+                    Interval = ExistConstraint<double>(Layer) ? TimeSpan.FromMilliseconds(GetPropertyConstraint<double>(Layer)) : TimeSpan.FromDays(1)
+                };
+                AddPropertyConstraint(Layer, timer);
+            }
+
+            timer.Stop();
+
+            ResetAllPropertyConstraint(Layer, imgs);
+            AddPropertyConstraint(Layer, 0);
+
+            timer.Tick += (s, e) => {
+                (Layer.Background as ImageBrush).ImageSource = GetPropertyConstraint<BitmapImage[]>(Layer)[GetPropertyConstraint<Int32>(Layer)];
+                if(GetPropertyConstraint<BitmapImage[]>(Layer).Length <= GetPropertyConstraint<Int32>(Layer) + 1) ResetAllPropertyConstraint(Layer, -1);
+                ResetAllPropertyConstraint(Layer, GetPropertyConstraint<Int32>(Layer) + 1);
+            };
+
+            timer.Start();
+        }
 
         public static double NumberConvert(PixelDirection dir, UISLiteralValue num) => (num as UISNumber).Number;
 
