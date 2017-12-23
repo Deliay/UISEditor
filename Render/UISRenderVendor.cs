@@ -39,9 +39,7 @@ namespace UISEditor.Render
      * TYPE         UISNumber           All user-custom element
      */
 
-
-
-    public abstract class UISRenderableElement<T> where T : UISObject
+    public abstract class UISRenderableElement
     {
         protected UISFileName TEX { get; set; }
         protected UISVector SIZE { get; set; }
@@ -54,7 +52,7 @@ namespace UISEditor.Render
 
         protected TC FindPropertyDefine<TC>(Property prop) where TC : UISValue => RenderProperty.FindProperty(prop)?.Value as TC;
 
-        protected UISElement<T> RenderProperty { get; }
+        protected UISElement<UISProperty> RenderProperty { get; }
         public Canvas RenderedObject { get; } = new Canvas();
 
         protected void ApplyBaseRenderableProperty()
@@ -64,7 +62,7 @@ namespace UISEditor.Render
             //{
             //    ConstriantPropertyLoader(item.Property)(this.RenderedObject, item.Value);
             //}
-
+            this.RenderedObject.RenderTransform = new TransformGroup();
             if (TEX != null) ConstriantPropertyLoader(Property.TEX)(this.RenderedObject, TEX);
             if (SIZE != null) ConstriantPropertyLoader(Property.SIZE)(this.RenderedObject, SIZE);
             if (POS != null) ConstriantPropertyLoader(Property.POS)(this.RenderedObject, POS);
@@ -75,7 +73,7 @@ namespace UISEditor.Render
             if (ZINDEX != null) ConstriantPropertyLoader(Property.ZINDEX)(this.RenderedObject, ZINDEX);
         }
 
-        public UISRenderableElement(UISElement<T> contianer)
+        public UISRenderableElement(UISElement<UISProperty> contianer)
         {
             RenderProperty = contianer;
             RefreshProperties();
@@ -119,9 +117,9 @@ namespace UISEditor.Render
     /// <para>UISObjectTree Create renderable object via <see cref="CreateRenderObject(UISObjectTree)"/></para>
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class UISCustomRenderable<T> : UISRenderableElement<T> where T : UISObject
+    public abstract class UISCustomRenderable : UISRenderableElement
     {
-        public UISCustomRenderable(UISElement<T> contianer) : base(contianer)
+        public UISCustomRenderable(UISElement<UISProperty> contianer) : base(contianer)
         {
         }
 
@@ -129,14 +127,14 @@ namespace UISEditor.Render
 
     }
 
-    public abstract class UISPredefineRenderable<T> : UISRenderableElement<T> where T : UISObject
+    public abstract class UISPredefineRenderable<TUISProperty> : UISRenderableElement
     {
-        public UISPredefineRenderable(UISElement<T> contianer) : base(contianer)
+        public UISPredefineRenderable(UISElement<UISProperty> contianer) : base(contianer)
         {
         }
     }
 
-    public class UISCustomImageElement : UISCustomRenderable<UISProperty>
+    public class UISCustomImageElement : UISCustomRenderable
     {
         protected UISNumber FLIP { get; set; }
         public UISCustomImageElement(UISCustomElement contianer) : base(contianer) { }
@@ -156,7 +154,7 @@ namespace UISEditor.Render
         }
     }
 
-    public class UISCustomTextElement : UISCustomRenderable<UISProperty>
+    public class UISCustomTextElement : UISCustomRenderable
     {
         public UISCustomTextElement(UISElement<UISProperty> contianer) : base(contianer)
         {
