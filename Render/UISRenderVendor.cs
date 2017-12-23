@@ -165,8 +165,8 @@ namespace UISEditor.Render
 
         protected override void ApplyProperty()
         {
-            if (TEXT != null) ConstriantPropertyLoader(Property.TEXT)(this.RenderedObject, TEXT);
-            if (FSIZE != null) ConstriantPropertyLoader(Property.FSIZE)(this.RenderedObject, FSIZE);
+            TEXT?.ApplyTo(RenderedObject, Property.TEXT);
+            FSIZE?.ApplyTo(RenderedObject, Property.FSIZE);
         }
 
         protected override void Refresh()
@@ -175,5 +175,42 @@ namespace UISEditor.Render
             TEXT = FindPropertyDefine<UISText>(Property.TEXT);
         }
     }
-   
+
+    public class UISCustomSoildColorElement : UISCustomRenderable
+    {
+        public UISCustomSoildColorElement(UISElement<UISProperty> contianer) : base(contianer)
+        {
+        }
+
+        protected override void ApplyProperty()
+        {
+        }
+
+        protected override void Refresh()
+        {
+        }
+    }
+
+    public class UISCustomAnimationElement : UISCustomRenderable
+    {
+        protected UISFrameFile FRAME { get; set; }
+        protected UISNumber INTERVAL { get; set; }
+
+        public UISCustomAnimationElement(UISElement<UISProperty> contianer) : base(contianer)
+        {
+        }
+
+        protected override void ApplyProperty()
+        {
+            FRAME?.ApplyTo(RenderedObject, Property.FRAME);
+            INTERVAL?.ApplyTo(RenderedObject, Property.INTERVAL);
+        }
+
+        protected override void Refresh()
+        {
+            FRAME = FindPropertyDefine<UISFrameFile>(Property.FRAME);
+            INTERVAL = FindPropertyDefine<UISNumber>(Property.INTERVAL);
+        }
+    }
+
 }
