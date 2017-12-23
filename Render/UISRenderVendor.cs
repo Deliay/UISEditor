@@ -78,11 +78,26 @@ namespace UISEditor.Render
         public UISRenderableElement(UISElement<T> contianer)
         {
             RenderProperty = contianer;
-            _Refresh();
+            RefreshProperties();
+            ApplyProperties();
+            this.RenderedObject.IsEnabled = true;
+            this.RenderedObject.Visibility = Visibility.Visible;
             RenderManager.RenderLayer.Children.Add(RenderedObject);
         }
 
-        protected void RefreshProperties()
+        public void RefreshProperties()
+        {
+            RefreshBaseProperties();
+            Refresh();
+        }
+
+        public void ApplyProperties()
+        {
+            ApplyBaseRenderableProperty();
+            ApplyProperty();
+        }
+
+        protected void RefreshBaseProperties()
         {
             TEX = FindPropertyDefine<UISFileName>(Property.TEX);
             SIZE = FindPropertyDefine<UISVector>(Property.SIZE);
@@ -93,15 +108,9 @@ namespace UISEditor.Render
             OPACITY = FindPropertyDefine<UISNumber>(Property.OPACITY);
             ZINDEX = FindPropertyDefine<UISNumber>(Property.ZINDEX);
         }
-        
-        public abstract void ApplyProperty();
-        public abstract void Refresh();
 
-        private void _Refresh()
-        {
-            RefreshProperties();
-            Refresh();
-        }
+        protected abstract void ApplyProperty();
+        protected abstract void Refresh();
 
     }
 
@@ -120,23 +129,52 @@ namespace UISEditor.Render
 
     }
 
-    public class UISCustomImageElementFactory : UISCustomRenderable<UISProperty>
+    public abstract class UISPredefineRenderable<T> : UISRenderableElement<T> where T : UISObject
+    {
+        public UISPredefineRenderable(UISElement<T> contianer) : base(contianer)
+        {
+        }
+    }
+
+    public class UISCustomImageElement : UISCustomRenderable<UISProperty>
     {
         protected UISNumber FLIP { get; set; }
-        public UISCustomImageElementFactory(UISCustomElement contianer) : base(contianer) { }
-        
-        public override void Refresh()
+        public UISCustomImageElement(UISCustomElement contianer) : base(contianer) { }
+
+        protected override void Refresh()
         {
             FLIP = FindPropertyDefine<UISNumber>(Property.FLIP);
         }
 
-        public override void ApplyProperty()
+        protected override void ApplyProperty()
         {
             if (this.TEX?.FileName?.Length != 0)
             {
                 if (FLIP != null) ConstriantPropertyLoader(Property.FLIP)(this.RenderedObject, FLIP);
             }
             else throw new MissingTEXPropertyException(this.RenderProperty.ElementName);
+        }
+    }
+
+    public class UISCustomTextElement : UISCustomRenderable<UISProperty>
+    {
+        public UISCustomTextElement(UISElement<UISProperty> contianer) : base(contianer)
+        {
+        }
+
+        protected UISNumber FSIZE { get; set; }
+        protected UISText TEXT { get; set; }
+
+        protected override void ApplyProperty()
+        {
+            if (TEXT != null) ConstriantPropertyLoader(Property.TEXT)(this.RenderedObject, TEXT);
+            if (FSIZE != null) ConstriantPropertyLoader(Property.FSIZE)(this.RenderedObject, FSIZE);
+        }
+
+        protected override void Refresh()
+        {
+            FSIZE = FindPropertyDefine<UISNumber>(Property.FSIZE);
+            TEXT = FindPropertyDefine<UISText>(Property.TEXT);
         }
     }
    
