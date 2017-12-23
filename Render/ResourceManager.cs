@@ -55,7 +55,7 @@ namespace UISEditor.Render
 
         public static BitmapImage LoadBitmapResource(string FilePath)
         {
-            return Instance.FetchOrLoadResource(FilePath, (fn) => new BitmapImage(new Uri(fn))).Item2;
+            return Instance.FetchOrLoadResource(Path.Combine(UISObjectTree.Instance.BasePath, FilePath), (fn) => new BitmapImage(new Uri(fn))).Item2;
         }
 
         public static IEnumerable<BitmapImage> LoadFrameImageResource(string perfix, int start, int end)
