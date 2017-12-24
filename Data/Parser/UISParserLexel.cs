@@ -67,10 +67,10 @@ namespace UISEditor.Data.Parser
         private static UISFunctionalElement Cmd()
         {
             AtProperty prop = look as AtProperty;
-            if (Enum.TryParse(prop.id, true, out FunctionElementType result) == false) ThrowError(new UISUnsupportFunctionalElemenetException(prop.Lexeme));
+            if (Enum.TryParse(prop.Id, true, out FunctionElementType result) == false) ThrowError(new UISUnsupportFunctionalElemenetException(prop.Lexeme));
             ExpectGrammar(Tag.AtProp);
             ExpectGrammar(Tag.LINE_END);
-            return new UISFunctionalElement(result, prop.value);
+            return new UISFunctionalElement(result, prop.Value);
 
         }
 

@@ -63,12 +63,12 @@ namespace UISEditor.Data.Lexical
 
     public class AtProperty : Operator
     {
-        public string id { get; private set; }
-        public string value { get; private set; }
+        public string Id { get; private set; }
+        public string Value { get; private set; }
         public AtProperty( int line, string id, string val) : base(Tag.AtProp, "@", line)
         {
-            this.id = id;
-            this.value = val;
+            this.Id = id;
+            this.Value = val;
         }
     }
 
