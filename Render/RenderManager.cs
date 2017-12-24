@@ -30,17 +30,22 @@ namespace UISEditor.Render
         {
             foreach (var item in list)
             {
-                if(item is UISCustomElement e)
+                if(item is UISCustomElement ce)
                 {
-                    if(renderData.ContainsKey(e))
+                    if(renderData.ContainsKey(ce))
                     {
-                        renderData[e].RefreshProperties();
-                        renderData[e].ApplyProperties();
+                        renderData[ce].RefreshProperties();
+                        renderData[ce].ApplyProperties();
                     }
                     else
                     {
-                        renderData.Add(e, e.ConstriantToRenderableType());
+                        renderData.Add(ce, ce.ConstriantToRenderableType());
                     }
+                }
+                else if (item is UISFunctionalElement fe)
+                {
+                    if (fe.ElemType == FunctionElementType.TEXPACK)
+                        ResourceManager.Instance.LoadResourceFormPackage(fe.Argument);
                 }
                 else if(item is UISList)
                 {

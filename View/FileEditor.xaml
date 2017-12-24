@@ -74,6 +74,7 @@
                             <ContextMenu>
                                 <MenuItem Name="CreateNode" Header="Create Node" Click="CreateNodeClick" />
                                 <MenuItem Name="Delete" Header="Delete Node" />
+                                <MenuItem Name="ResourceView" Header="Resources.." Click="OpenResourceView"></MenuItem>
                             </ContextMenu>
                         </TreeView.ContextMenu>
                     </TreeView>

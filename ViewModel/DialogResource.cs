@@ -13,6 +13,7 @@ namespace UISEditor.ViewModel
     public enum Dialog
     {
         CreateNode,
+        ResourceView,
     }
 
     public static class DialogResource
@@ -20,6 +21,7 @@ namespace UISEditor.ViewModel
         static DialogResource()
         {
             PropertyConstraint.AddPropertyConstraint(Dialog.CreateNode, $"View/Dialog/CreateNode.xaml");
+            PropertyConstraint.AddPropertyConstraint(Dialog.ResourceView, $"View/Dialog/ResourceViewer.xaml");
         }
 
         public static void LoadDialog(this Frame frame, Dialog dialog)
