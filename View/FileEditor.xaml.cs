@@ -255,6 +255,12 @@ namespace UISEditor.View
         {
             ShowModalDialog(false);
         }
-        
+
+        private void OpenResourceView(object sender, RoutedEventArgs e)
+        {
+            ShowModalDialog(true);
+            this.PopupContent.LoadDialog(Dialog.ResourceView);
+        }
+
     }
 }

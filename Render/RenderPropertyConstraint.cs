@@ -125,6 +125,10 @@ namespace UISEditor.Data
                 {
                     Layer.Background = new ImageBrush(ResourceManager.LoadBitmapResource(tex.FileName));
                 }
+                else if(ResourceManager.Instance.ExistResource(tex.FileName, false))
+                {
+                    Layer.Background = new ImageBrush(ResourceManager.Instance.FetchResource<BitmapSource>(tex.FileName, false));
+                }
                 else throw new MissingRenderImageException(tex.FileName);
             }
         }

@@ -127,7 +127,7 @@ namespace UISEditor.Render
 
     }
 
-    public abstract class UISPredefineRenderable<TUISProperty> : UISRenderableElement
+    public abstract class UISPredefineRenderable : UISRenderableElement
     {
         public UISPredefineRenderable(UISElement<UISProperty> contianer) : base(contianer)
         {
