@@ -104,7 +104,7 @@ namespace UISEditor.Data.Lexical
                     v = 10 * v + (int)char.GetNumericValue(peek);
                     peek = Reader.ReadChar();
                 } while (char.IsDigit(peek) && Reader.EOF());
-                if (peek != '.')
+                if (peek != '.' || !char.IsDigit(Reader.PeekChar()))
                 {
                     Reader.Back();
                     return new Number(v, Reader.CurrentLineNumber);
