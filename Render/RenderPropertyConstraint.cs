@@ -31,7 +31,9 @@ namespace UISEditor.Data
 
         public static UISCustomRenderable ConstriantToRenderableType(this UISCustomElement element)
         {
-            return ConstriantCustomElementGenerator(element.FindProperty(Property.TYPE).Value.Cast<UISNumber>().Number)(element);
+            var prop = element.FindProperty(Property.TYPE);
+            if (prop == null) return ConstriantCustomElementGenerator(0d)(element);
+            return ConstriantCustomElementGenerator(prop.Value.Cast<UISNumber>().Number)(element);
         }
 
         public static T Search<T>(this UIElementCollection col)
