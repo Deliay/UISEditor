@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Media;
 using UISEditor.Data;
 using UISEditor.View;
 
@@ -17,6 +18,11 @@ namespace UISEditor.Render
 
         public static void Render()
         {
+            if(RenderLayer.Background == null)
+            {
+                //RenderLayer.Background = new ImageBrush(new DrawingImage() { Drawing = new GeometryDrawing(new SolidColorBrush(Colors.Gray), new Pen(), new RectangleGeometry(new System.Windows.Rect(0,0,1280,720))) });
+                RenderLayer.Background = new BitmapCacheBrush(RenderLayer);
+            }
             foreach (var item in UISObjectTree.Instance)
             {
                 if(item is UISList)
