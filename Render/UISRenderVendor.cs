@@ -137,20 +137,25 @@ namespace UISEditor.Render
     public class UISCustomImageElement : UISCustomRenderable
     {
         protected UISNumber FLIP { get; set; }
+        protected UISNumber BLEND { get; set; }
         public UISCustomImageElement(UISCustomElement contianer) : base(contianer) { }
 
         protected override void Refresh()
         {
             FLIP = FindPropertyDefine<UISNumber>(Property.FLIP);
+            BLEND = FindPropertyDefine<UISNumber>(Property.BLEND);
+
         }
 
         protected override void ApplyProperty()
         {
             if (this.TEX?.FileName?.Length != 0)
             {
-                if (FLIP != null) ConstriantPropertyLoader(Property.FLIP)(this.RenderedObject, FLIP);
+                FLIP?.ApplyTo(RenderedObject, Property.FLIP);
             }
             else throw new MissingTEXPropertyException(this.RenderProperty.ElementName);
+
+            BLEND?.ApplyTo(RenderedObject, Property.BLEND);
         }
     }
 
@@ -195,6 +200,7 @@ namespace UISEditor.Render
     {
         protected UISFrameFile FRAME { get; set; }
         protected UISNumber INTERVAL { get; set; }
+        protected UISNumber BLEND { get; set; }
 
         public UISCustomAnimationElement(UISElement<UISProperty> contianer) : base(contianer)
         {
@@ -204,12 +210,14 @@ namespace UISEditor.Render
         {
             FRAME?.ApplyTo(RenderedObject, Property.FRAME);
             INTERVAL?.ApplyTo(RenderedObject, Property.INTERVAL);
+            BLEND?.ApplyTo(RenderedObject, Property.BLEND);
         }
 
         protected override void Refresh()
         {
             FRAME = FindPropertyDefine<UISFrameFile>(Property.FRAME);
             INTERVAL = FindPropertyDefine<UISNumber>(Property.INTERVAL);
+            BLEND = FindPropertyDefine<UISNumber>(Property.BLEND);
         }
     }
 
