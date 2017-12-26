@@ -11,6 +11,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using UISEditor.Render;
 using UISEditor.View;
+using WpfShaderEffects;
 
 namespace UISEditor.Data
 {
@@ -68,11 +69,26 @@ namespace UISEditor.Data
             AddPropertyConstraint<Action<Canvas, UISValue>>(Property.FSIZE, FSIZE);
             AddPropertyConstraint<Action<Canvas, UISValue>>(Property.FRAME, FRAME);
             AddPropertyConstraint<Action<Canvas, UISValue>>(Property.INTERVAL, INTERVAL);
+            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.BLEND, BLEND);
 
             AddPropertyConstraint<Func<UISCustomElement, UISCustomRenderable>>(0.0d, (x) => new UISCustomImageElement(x));
             AddPropertyConstraint<Func<UISCustomElement, UISCustomRenderable>>(1.0d, (x) => new UISCustomTextElement(x));
             AddPropertyConstraint<Func<UISCustomElement, UISCustomRenderable>>(2.0d, (x) => new UISCustomSoildColorElement(x));
             AddPropertyConstraint<Func<UISCustomElement, UISCustomRenderable>>(3.0d, (x) => new UISCustomAnimationElement(x));
+        }
+
+        private static void BLEND(Canvas Layer, UISValue prop)
+        {
+            //0 - disable, 1 - additive, 2 - screen
+            var value = prop.Cast<UISNumber>().Number;
+
+            if(value == 2)
+            {
+                if (Layer.Effect == null)
+                {
+                    Layer.Effect = new ScreenEffect();
+                }
+            }
         }
 
         private static void FSIZE(Canvas Layer, UISValue prop)
@@ -252,6 +268,7 @@ namespace UISEditor.Data
             //Load frames image first
             var frame = prop.Cast<UISFrameFile>();
             var imgs = ResourceManager.LoadFrameImageResource(frame.FileName, frame.StartFrame, frame.EndFrame).ToArray();
+
             if(!(Layer.Background is ImageBrush))
             {
                 Layer.Background = new ImageBrush();
@@ -281,8 +298,8 @@ namespace UISEditor.Data
             AddPropertyConstraint(Layer, 0);
 
             timer.Tick += (s, e) => {
-                (Layer.Background as ImageBrush).ImageSource = GetPropertyConstraint<BitmapImage[]>(Layer)[GetPropertyConstraint<Int32>(Layer)];
-                if(GetPropertyConstraint<BitmapImage[]>(Layer).Length <= GetPropertyConstraint<Int32>(Layer) + 1) ResetAllPropertyConstraint(Layer, -1);
+                (Layer.Background as ImageBrush).ImageSource = GetPropertyConstraint<BitmapSource[]>(Layer)[GetPropertyConstraint<Int32>(Layer)];
+                if(GetPropertyConstraint<BitmapSource[]>(Layer).Length <= GetPropertyConstraint<Int32>(Layer) + 1) ResetAllPropertyConstraint(Layer, -1);
                 ResetAllPropertyConstraint(Layer, GetPropertyConstraint<Int32>(Layer) + 1);
             };
 
