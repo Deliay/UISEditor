@@ -78,19 +78,36 @@ namespace UISEditor.Render
             return Instance.FetchOrLoadResource(Path.Combine(UISObjectTree.Instance.BasePath, FilePath), (fn) => new BitmapImage(new Uri(fn))).Item2;
         }
 
-        public static IReadOnlyList<BitmapImage> LoadFrameImageResource(string perfix, int start, int end)
+        public static IReadOnlyList<BitmapSource> LoadFrameImageResource(string perfix, int start, int end)
         {
             string fixedPerfix = $"{perfix}-";
             string tempFile = Directory.EnumerateFiles(UISObjectTree.Instance.BasePath)
                                        .ToList()
                                        .FirstOrDefault(p => Path.GetFileNameWithoutExtension(p).StartsWith(fixedPerfix));
-            string ext = tempFile != null ? Path.GetExtension(tempFile) : throw new FileNotFoundException($"{perfix}/{start}-{end}");
+            if (tempFile != null)
+            {
+                string ext = Path.GetExtension(tempFile);
 
-            List<BitmapImage> list = new List<BitmapImage>();
-            Enumerable.Range(start, end - start + 1)
-                        .ToList()
-                        .ForEach(x => list.Add(LoadBitmapResource(Path.Combine(UISObjectTree.Instance.BasePath, $"{fixedPerfix}{x}{ext}"))));
-            return list;
+                List<BitmapSource> list = new List<BitmapSource>();
+                Enumerable.Range(start, end - start + 1)
+                            .ToList()
+                            .ForEach(x => list.Add(LoadBitmapResource(Path.Combine(UISObjectTree.Instance.BasePath, $"{fixedPerfix}{x}{ext}"))));
+                return list;
+            }
+            else
+            {
+                tempFile = Instance.resourceTab.Keys.FirstOrDefault(p => Path.GetFileNameWithoutExtension(p).StartsWith(fixedPerfix));
+                if (tempFile == null) throw new FileNotFoundException($"{perfix}/{start}-{end}");
+                else
+                {
+                    string ext = Path.GetExtension(tempFile);
+                    List<BitmapSource> list = new List<BitmapSource>();
+                    Enumerable.Range(start, end - start + 1)
+                                .ToList()
+                                .ForEach(x => list.Add(Instance.FetchResource<BitmapSource>(Path.Combine(UISObjectTree.Instance.BasePath, $"{fixedPerfix}{x}{ext}"))));
+                    return list;
+                }
+            }
         }
 
         public void LoadResourceFormPackage(string name)
