@@ -11,7 +11,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using UISEditor.Render;
 using UISEditor.View;
-using WpfShaderEffects;
 
 namespace UISEditor.Data
 {

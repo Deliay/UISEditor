@@ -61,9 +61,6 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="WindowsFormsIntegration" />
-    <Reference Include="WpfShaderEffects">
-      <HintPath>..\..\Download\Compressed\WpfShaderEffectsLibraryAndTestApp.1.0.3518\WpfShaderEffectsLibraryAndTestApp.1.0.3518\WpfShaderEffects.1.0.3518.35908\WpfShaderEffects.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
