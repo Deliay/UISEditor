@@ -131,20 +131,28 @@ namespace UISEditor.Render
             {
                 string path = Path.Combine(UISObjectTree.Instance.BasePath, item.Name);
                 if (ExistResource(path)) continue;    //exist a local image
-                int width = item.Width;
-                if (item.StartX + width > bitmap.PixelWidth) { width = bitmap.PixelWidth - item.StartX; }
-                
-                var cut = new Int32Rect(item.StartX, item.StartY, width, item.Height);
-                var stride = bitmap.Format.BitsPerPixel * width / 8;
+
+                Int32Rect cut;
+                int srcW, srcH;
+                if (item.Rotate)
+                {
+                    srcW = item.OriginalWidth; srcH = item.OriginalHeight;
+                    cut = new Int32Rect(item.StartX, item.StartY, item.Height, item.Width);
+                }
+                else
+                {
+                    srcH = item.OriginalWidth; srcW = item.OriginalHeight;
+                    cut = new Int32Rect(item.StartX, item.StartY, item.Width, item.Height);
+                }
+                var stride = bitmap.Format.BitsPerPixel * cut.Width / 8;
                 byte[] data = new byte[cut.Height * stride];
 
                 bitmap.CopyPixels(cut, data, stride, 0);
 
                 Guid uid = Guid.NewGuid();
-                var src = BitmapSource.Create(width, item.Height, bitmap.DpiX, bitmap.DpiY, bitmap.Format, bitmap.Palette, data, stride);
+                var src = BitmapSource.Create(cut.Width, cut.Height, bitmap.DpiX, bitmap.DpiY, bitmap.Format, bitmap.Palette, data, stride);
                 if (item.Rotate) src = new TransformedBitmap(src, new RotateTransform(270d));
-                src = new TransformedBitmap(src, new ScaleTransform(item.OriginalWidth / item.Width, item.OriginalHeight / item.Height));
-
+                //src = new TransformedBitmap(src, new ScaleTransform(srcW / src.Width, srcH / src.Height));
                 resourceTab.Add(path, uid);
                 resourceDict.Add(uid, src);
             }
