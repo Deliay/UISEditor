@@ -30,12 +30,12 @@ namespace UISEditor.View
 
         public void onSwitch()
         {
-            this.ResourceList.ItemsSource = ResourceManager.GetResourcesList();
+            this.ResourceList.ItemsSource = ResourceManager.GetResourcesList().Select(p => System.IO.Path.GetFileName(p));
         }
 
         private void ResourceList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            this.ImageLayer.Source = ResourceManager.Instance.FetchResource<ImageSource>(this.ResourceList.SelectedItem.ToString());
+            this.ImageLayer.Source = ResourceManager.Instance.FetchResource<ImageSource>(this.ResourceList.SelectedItem.ToString(), false);
         }
     }
 }
