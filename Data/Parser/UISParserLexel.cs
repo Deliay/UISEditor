@@ -679,6 +679,11 @@ namespace UISEditor.Data.Parser
                     Expect(look.TokenTag);
                     id1 += word.Lexeme;
                 }
+                else
+                {
+                    id1 += (char)look.TokenTag;
+                    Expect(look.TokenTag);
+                }
             }
 
             return new UISFileName(id1);
