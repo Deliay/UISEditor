@@ -12,7 +12,7 @@ namespace UISEditor.Render
 {
     public static class RenderManager
     {
-        public static Canvas RenderLayer;
+        public static Grid RenderLayer;
 
         private static Dictionary<UISList, UISRenderableElement> renderData = new Dictionary<UISList, UISRenderableElement>();
 

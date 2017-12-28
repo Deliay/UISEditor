@@ -25,7 +25,7 @@ namespace UISEditor.Data
 
         public static Func<object, Func<PixelDirection, UISLiteralValue, double>> ConstriantPixelConvertor = GetPropertyConstraint<Func<PixelDirection, UISLiteralValue, double>>;
 
-        public static Func<object, Action<Canvas, UISValue>> ConstriantPropertyLoader = GetPropertyConstraint<Action<Canvas, UISValue>>;
+        public static Func<object, Action<Grid, UISValue>> ConstriantPropertyLoader = GetPropertyConstraint<Action<Grid, UISValue>>;
 
         public static Func<object, Func<UISCustomElement, UISCustomRenderable>> ConstriantCustomElementGenerator = GetPropertyConstraint<Func<UISCustomElement, UISCustomRenderable>>;
 
@@ -55,20 +55,20 @@ namespace UISEditor.Data
             AddPropertyConstraint<Func<PixelDirection, UISLiteralValue, double>>(ValueType.PERCENT, PercentConvert);
             AddPropertyConstraint<Func<PixelDirection, UISLiteralValue, double>>(ValueType.SIMPLE_EXPR, ExprConvert);
 
-            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.SIZE, SIZE);
-            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.POS, POS);
-            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.ANCHOR, ANCHOR);
-            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.COLOR, COLOR);
-            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.ROTATE, ROTATE);
-            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.OPACITY, OPACITY);
-            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.ZINDEX, ZINDEX);
-            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.FLIP, FLIP);
-            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.TEX, TEX);
-            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.TEXT, TEXT);
-            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.FSIZE, FSIZE);
-            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.FRAME, FRAME);
-            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.INTERVAL, INTERVAL);
-            AddPropertyConstraint<Action<Canvas, UISValue>>(Property.BLEND, BLEND);
+            AddPropertyConstraint<Action<Grid, UISValue>>(Property.SIZE, SIZE);
+            AddPropertyConstraint<Action<Grid, UISValue>>(Property.POS, POS);
+            AddPropertyConstraint<Action<Grid, UISValue>>(Property.ANCHOR, ANCHOR);
+            AddPropertyConstraint<Action<Grid, UISValue>>(Property.COLOR, COLOR);
+            AddPropertyConstraint<Action<Grid, UISValue>>(Property.ROTATE, ROTATE);
+            AddPropertyConstraint<Action<Grid, UISValue>>(Property.OPACITY, OPACITY);
+            AddPropertyConstraint<Action<Grid, UISValue>>(Property.ZINDEX, ZINDEX);
+            AddPropertyConstraint<Action<Grid, UISValue>>(Property.FLIP, FLIP);
+            AddPropertyConstraint<Action<Grid, UISValue>>(Property.TEX, TEX);
+            AddPropertyConstraint<Action<Grid, UISValue>>(Property.TEXT, TEXT);
+            AddPropertyConstraint<Action<Grid, UISValue>>(Property.FSIZE, FSIZE);
+            AddPropertyConstraint<Action<Grid, UISValue>>(Property.FRAME, FRAME);
+            AddPropertyConstraint<Action<Grid, UISValue>>(Property.INTERVAL, INTERVAL);
+            AddPropertyConstraint<Action<Grid, UISValue>>(Property.BLEND, BLEND);
 
             AddPropertyConstraint<Func<UISCustomElement, UISCustomRenderable>>(0.0d, (x) => new UISCustomImageElement(x));
             AddPropertyConstraint<Func<UISCustomElement, UISCustomRenderable>>(1.0d, (x) => new UISCustomTextElement(x));
@@ -76,7 +76,7 @@ namespace UISEditor.Data
             AddPropertyConstraint<Func<UISCustomElement, UISCustomRenderable>>(3.0d, (x) => new UISCustomAnimationElement(x));
         }
 
-        private static void BLEND(Canvas Layer, UISValue prop)
+        private static void BLEND(Grid Layer, UISValue prop)
         {
             //0 - disable, 1 - additive, 2 - screen
             var value = prop.Cast<UISNumber>().Number;
@@ -90,7 +90,7 @@ namespace UISEditor.Data
             }
         }
 
-        private static void FSIZE(Canvas Layer, UISValue prop)
+        private static void FSIZE(Grid Layer, UISValue prop)
         {
             foreach (var item in Layer.Children)
             {
@@ -102,7 +102,7 @@ namespace UISEditor.Data
             }
         }
 
-        private static void TEXT(Canvas Layer, UISValue prop)
+        private static void TEXT(Grid Layer, UISValue prop)
         {
             Label text = null;
             foreach (var item in Layer.Children)
@@ -126,12 +126,12 @@ namespace UISEditor.Data
 
         public static TSrc Cast<TSrc>(this UISValue val) where TSrc : UISValue => val as TSrc;
 
-        public static void ApplyTo<T>(this T val, Canvas To, Property As) where T : UISValue
+        public static void ApplyTo<T>(this T val, Grid To, Property As) where T : UISValue
         {
             ConstriantPropertyLoader(As)(To, val);
         }
 
-        private static void TEX(Canvas Layer, UISValue prop)
+        private static void TEX(Grid Layer, UISValue prop)
         {
             var tex = Cast<UISFileName>(prop);
             if (tex.FileName?.Length != 0)
@@ -148,7 +148,7 @@ namespace UISEditor.Data
             }
         }
 
-        private static void FLIP(Canvas Layer, UISValue prop)
+        private static void FLIP(Grid Layer, UISValue prop)
         {
             if (Layer.RenderTransform == null || Layer.RenderTransform.GetType() != typeof(TransformGroup)) Layer.RenderTransform = new TransformGroup();
             var mode = (int)Cast<UISNumber>(prop).Number;
@@ -168,21 +168,21 @@ namespace UISEditor.Data
 
         }
 
-        private static void SIZE(Canvas Layer, UISValue prop)
+        private static void SIZE(Grid Layer, UISValue prop)
         {
             var size = Cast<UISVector>(prop);
-            Layer.Height = ConstriantPixelConvertor(size.First.ValueType)(PixelDirection.Height, size.First);
-            Layer.Width = ConstriantPixelConvertor(size.Second.ValueType)(PixelDirection.Width, size.Second);
+            Layer.Width = ConstriantPixelConvertor(size.First.ValueType)(PixelDirection.Width, size.First);
+            Layer.Height = ConstriantPixelConvertor(size.Second.ValueType)(PixelDirection.Height, size.Second);
         }
 
-        private static void POS(Canvas Layer, UISValue prop)
+        private static void POS(Grid Layer, UISValue prop)
         {
             var pos = Cast<UISVector>(prop);
             Layer.Margin = new Thickness(ConstriantPixelConvertor(pos.First.ValueType)(PixelDirection.Width, pos.First),
-                                ConstriantPixelConvertor(pos.Second.ValueType)(PixelDirection.Height, pos.Second), 0, 0);
+                                        ConstriantPixelConvertor(pos.Second.ValueType)(PixelDirection.Height, pos.Second), 0, 0);
         }
 
-        private static void ANCHOR(Canvas Layer, UISValue prop)
+        private static void ANCHOR(Grid Layer, UISValue prop)
         {
             var anchor = prop as UISNumber;
             switch (anchor.Number)
@@ -228,7 +228,7 @@ namespace UISEditor.Data
             }
         }
 
-        private static void COLOR(Canvas Layer, UISValue prop)
+        private static void COLOR(Grid Layer, UISValue prop)
         {
             var color = Cast<UISHexColor>(prop);
             if (Layer.Background == null)
@@ -237,17 +237,17 @@ namespace UISEditor.Data
             }
         }
 
-        private static void ROTATE(Canvas Layer, UISValue prop)
+        private static void ROTATE(Grid Layer, UISValue prop)
         {
             if (Layer.RenderTransform == null) Layer.RenderTransform = new TransformGroup();
             (Layer.RenderTransform as TransformGroup).Children.Add(new RotateTransform(Cast<UISNumber>(prop).Number));
         }
 
-        private static void OPACITY(Canvas Layer, UISValue prop) => Layer.Opacity = Cast<UISNumber>(prop).Number;
+        private static void OPACITY(Grid Layer, UISValue prop) => Layer.Opacity = Cast<UISNumber>(prop).Number / 100;
 
-        private static void ZINDEX(Canvas Layer, UISValue prop) => Panel.SetZIndex(Layer, (int)Cast<UISNumber>(prop).Number);
+        private static void ZINDEX(Grid Layer, UISValue prop) => Panel.SetZIndex(Layer, (int)Cast<UISNumber>(prop).Number);
 
-        private static void INTERVAL(Canvas Layer, UISValue prop)
+        private static void INTERVAL(Grid Layer, UISValue prop)
         {
             var timer = GetPropertyConstraint<DispatcherTimer>(Layer);
             if(timer != null)
@@ -262,7 +262,7 @@ namespace UISEditor.Data
             }
         }
 
-        private static void FRAME(Canvas Layer, UISValue prop)
+        private static void FRAME(Grid Layer, UISValue prop)
         {
             //Load frames image first
             var frame = prop.Cast<UISFrameFile>();

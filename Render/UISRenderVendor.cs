@@ -53,7 +53,7 @@ namespace UISEditor.Render
         protected TC FindPropertyDefine<TC>(Property prop) where TC : UISValue => RenderProperty.FindProperty(prop)?.Value as TC;
 
         protected UISElement<UISProperty> RenderProperty { get; }
-        public Canvas RenderedObject { get; } = new Canvas();
+        protected Grid RenderedObject { get; } = new Grid();
 
         protected void ApplyBaseRenderableProperty()
         {
