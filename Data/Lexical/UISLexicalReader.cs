@@ -41,7 +41,7 @@ namespace UISEditor.Data.Lexical
             return codes[currentPos - 2];
         }
 
-        public bool isTerminalSymbol(char ch)
+        public bool IsTerminalSymbol(char ch)
         {
             return Enum.IsDefined(typeof(Tag), ch);
         }

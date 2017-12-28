@@ -139,6 +139,16 @@ namespace UISEditor.Data.Lexical
                 return new IndexArrayRight(Reader.CurrentLineNumber);
             }
 
+            if (peek == '{')
+            {
+                return new VarLeft(Reader.CurrentLineNumber);
+            }
+
+            if (peek == '}')
+            {
+                return new VarRight(Reader.CurrentLineNumber);
+            }
+
             if (peek == '@')
             {
                 int line = Reader.CurrentLineNumber;

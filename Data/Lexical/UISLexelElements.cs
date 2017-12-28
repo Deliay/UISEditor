@@ -21,6 +21,8 @@ namespace UISEditor.Data.Lexical
         RightPar = ')',
         LeftBar = '[',
         RightBar = ']',
+        LeftBarc = '{',
+        RightBarc = '}',
         Comment = '#',
         Percent = '%',
         Animation = ':',
@@ -57,6 +59,21 @@ namespace UISEditor.Data.Lexical
     public class IndexArrayRight : Operator
     {
         public IndexArrayRight(int line) : base(Tag.RightBar, "]", line)
+        {
+        }
+    }
+
+
+    public class VarLeft : Operator
+    {
+        public VarLeft(int line) : base(Tag.LeftBarc, "{", line)
+        {
+        }
+    }
+
+    public class VarRight : Operator
+    {
+        public VarRight(int line) : base(Tag.RightBarc, "}", line)
         {
         }
     }
@@ -187,7 +204,6 @@ namespace UISEditor.Data.Lexical
 
         }
     }
-
 
     public class Number : Word
     {
