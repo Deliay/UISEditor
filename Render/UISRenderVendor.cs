@@ -80,6 +80,7 @@ namespace UISEditor.Render
             ApplyProperties();
             this.RenderedObject.IsEnabled = true;
             this.RenderedObject.Visibility = Visibility.Visible;
+            this.RenderedObject.Name = contianer.ElementName.Replace('-', '_');
             RenderManager.RenderLayer.Children.Add(RenderedObject);
         }
 
