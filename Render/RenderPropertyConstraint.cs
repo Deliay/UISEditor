@@ -155,11 +155,11 @@ namespace UISEditor.Data
             TransformGroup props = Layer.RenderTransform as TransformGroup;
             if (mode == 0)
             {
-                props.Children.Add(new ScaleTransform(-1, 0));
+                props.Children.Add(new ScaleTransform(-1, 1));
             }
             else if(mode == 1)
             {
-                props.Children.Add(new ScaleTransform(0, -1));
+                props.Children.Add(new ScaleTransform(1, -1));
             }
             else
             {
